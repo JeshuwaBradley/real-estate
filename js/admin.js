@@ -78,7 +78,7 @@ function renderProperties(items) {
             <div class="admin-property-cell">
               ${thumb}
               <div class="admin-property-main">
-                <div class="admin-property-name">${property.title ?? "-"}</div>
+                <div class="admin-property-name" title="${property.title}">${property.title ?? "-"}</div>
                 <div class="admin-property-meta">
                   ${property.location ?? "-"}${property.district ? `, ${property.district}` : ""}
                 </div>
