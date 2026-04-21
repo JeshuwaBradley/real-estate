@@ -114,7 +114,7 @@ function renderFeaturedProperties(items) {
 
             <div class="property-footer">
               <a href="./property.html?id=${encodeURIComponent(property.id)}" class="view-link">View Property</a>
-              <a href="./property.html?id=${encodeURIComponent(property.id)}" class="btn btn-outline">Request Details</a>
+              <!--<a href="./property.html?id=${encodeURIComponent(property.id)}" class="btn btn-outline">Request Details</a> -->
             </div>
           </div>
         </article>

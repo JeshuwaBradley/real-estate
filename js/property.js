@@ -10,7 +10,24 @@ function moneyLkr(value) {
     maximumFractionDigits: 0
   }).format(Number(value) || 0);
 }
+function populateInquiryForm(property) {
+  const propertyIdField = document.getElementById("propertyIdField");
+  const propertyTitleField = document.getElementById("propertyTitleField");
+  const propertyLocationField = document.getElementById("propertyLocationField");
+  const propertyPriceField = document.getElementById("propertyPriceField");
+  const propertyRefField = document.getElementById("propertyRefField");
+  const messageField = document.getElementById("message");
 
+  if (propertyIdField) propertyIdField.value = property.id || "";
+  if (propertyTitleField) propertyTitleField.value = property.title || "";
+  if (propertyLocationField) propertyLocationField.value = property.location || "";
+  if (propertyPriceField) propertyPriceField.value = property.priceDisplay || "";
+  if (propertyRefField) propertyRefField.value = property.referenceCode || "";
+
+  if (messageField && !messageField.value.trim()) {
+    messageField.value = `I'm interested in "${property.title}" located in ${property.location}. Please share more details.`;
+  }
+}
 function getUrlPropertyId() {
   const params = new URLSearchParams(window.location.search);
   return params.get("id");
@@ -312,29 +329,100 @@ function renderRelatedProperties(items) {
     .join("");
 }
 
+async function submitToNetlify(formData) {
+  const encoded = new URLSearchParams(formData).toString();
+
+  const response = await fetch("/", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded"
+    },
+    body: encoded
+  });
+
+  if (!response.ok) {
+    throw new Error("Netlify form submission failed.");
+  }
+}
+
+async function submitToSupabase(payload) {
+  const { error } = await supabaseClient
+    .from("property_inquiries")
+    .insert([payload]);
+
+  if (error) {
+    throw error;
+  }
+}
+
 function setupInquiryForm(property) {
   const inquiryForm = document.getElementById("inquiryForm");
   if (!inquiryForm) return;
 
-  inquiryForm.addEventListener("submit", (event) => {
+  inquiryForm.addEventListener("submit", async (event) => {
     event.preventDefault();
+
+    const submitButton = inquiryForm.querySelector('button[type="submit"]');
+    const originalButtonText = submitButton?.textContent || "Send Inquiry";
 
     const fullName = document.getElementById("fullName")?.value.trim() || "";
     const phoneNumber = document.getElementById("phoneNumber")?.value.trim() || "";
     const emailAddress = document.getElementById("emailAddress")?.value.trim() || "";
     const message = document.getElementById("message")?.value.trim() || "";
 
-    console.log("Inquiry submitted:", {
-      propertyId: property.id,
-      propertyRef: property.referenceCode,
-      fullName,
-      phoneNumber,
-      emailAddress,
-      message
-    });
+    const propertyId = document.getElementById("propertyIdField")?.value || property.id || "";
+    const propertyTitle = document.getElementById("propertyTitleField")?.value || property.title || "";
+    const propertyLocation = document.getElementById("propertyLocationField")?.value || property.location || "";
+    const propertyPrice = document.getElementById("propertyPriceField")?.value || property.priceDisplay || "";
+    const propertyReference = document.getElementById("propertyRefField")?.value || property.referenceCode || "";
 
-    alert("Inquiry form UI is ready. Next we can connect this to Supabase or Netlify Functions.");
-    inquiryForm.reset();
+    const payload = {
+      property_id: propertyId || null,
+      property_title: propertyTitle,
+      property_location: propertyLocation,
+      property_price: propertyPrice,
+      property_reference: propertyReference,
+      full_name: fullName,
+      phone_number: phoneNumber,
+      email_address: emailAddress || null,
+      message: message
+    };
+
+    const netlifyFormData = new FormData();
+    netlifyFormData.append("form-name", "property-inquiry");
+    netlifyFormData.append("property_id", propertyId);
+    netlifyFormData.append("property_title", propertyTitle);
+    netlifyFormData.append("property_location", propertyLocation);
+    netlifyFormData.append("property_price", propertyPrice);
+    netlifyFormData.append("property_reference", propertyReference);
+    netlifyFormData.append("full_name", fullName);
+    netlifyFormData.append("phone_number", phoneNumber);
+    netlifyFormData.append("email_address", emailAddress);
+    netlifyFormData.append("message", message);
+
+    try {
+      if (submitButton) {
+        submitButton.disabled = true;
+        submitButton.textContent = "Sending...";
+      }
+
+      await Promise.all([
+        submitToSupabase(payload),
+        submitToNetlify(netlifyFormData)
+      ]);
+
+      alert("Inquiry sent successfully.");
+      inquiryForm.reset();
+      populateInquiryForm(property);
+    } catch (error) {
+      console.error("Inquiry submission error:", error);
+      alert("Sorry, the inquiry could not be sent. Please try again.");
+    } finally {
+      if (submitButton) {
+        submitButton.disabled = false;
+        submitButton.textContent = originalButtonText;
+      }
+    }
   });
 }
 
@@ -443,6 +531,7 @@ async function initPage() {
     renderInspectionNotes(currentProperty);
     renderGallery(currentProperty);
     renderRelatedProperties(relatedProperties);
+    populateInquiryForm(currentProperty);
     setupInquiryForm(currentProperty);
   } catch (error) {
     console.error("Property load error:", error);

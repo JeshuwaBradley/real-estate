@@ -38,13 +38,20 @@
         <a href="index.html">Home</a>
         <a href="properties.html">Properties</a>
         <a href="how-it-works.html">How It Works</a>
-        <a href="list-your-property.html">List Your Property</a>
+        <a href="list-your-property.html" class="active-link">List Your Property</a>
         <a href="contact.html">Contact</a>
       </nav>
 
-      
+      <div class="header-actions">
+        <button class="menu-toggle" id="menuToggle" aria-label="Open menu">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
     </div>
   </header>
+
 
   <!-- Page Hero -->
   <section class="listing-hero">
@@ -218,5 +225,15 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script type="module" src="./js/properties.js"></script>
+  <script>
+    const menuToggle = document.getElementById("menuToggle");
+    const mainNav = document.getElementById("mainNav");
+
+    if (menuToggle && mainNav) {
+      menuToggle.addEventListener("click", () => {
+        mainNav.classList.toggle("active");
+      });
+    }
+  </script>
 </body>
 </html>

@@ -38,11 +38,17 @@
         <a href="index.html">Home</a>
         <a href="properties.html">Properties</a>
         <a href="how-it-works.html">How It Works</a>
-        <a href="list-your-property.html">List Your Property</a>
+        <a href="list-your-property.html" class="active-link">List Your Property</a>
         <a href="contact.html">Contact</a>
       </nav>
 
-      
+      <div class="header-actions">
+        <button class="menu-toggle" id="menuToggle" aria-label="Open menu">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
     </div>
   </header>
 
@@ -206,30 +212,66 @@
             <a href="#" class="btn btn-outline-dark btn-block">Schedule Visit</a>
           </div>
 
-          <form class="inquiry-form" id="inquiryForm">
-            <div class="form-group">
-              <label for="fullName">Full Name</label>
-              <input id="fullName" type="text" placeholder="Your full name" required />
-            </div>
+          <form
+			  class="inquiry-form"
+			  id="inquiryForm"
+			  name="property-inquiry"
+			  method="POST"
+			  data-netlify="true"
+			>
+			  <input type="hidden" name="form-name" value="property-inquiry" />
 
-            <div class="form-group">
-              <label for="phoneNumber">Phone Number</label>
-              <input id="phoneNumber" type="tel" placeholder="+94 7X XXX XXXX" required />
-            </div>
+			  <input type="hidden" id="propertyIdField" name="property_id" />
+			  <input type="hidden" id="propertyTitleField" name="property_title" />
+			  <input type="hidden" id="propertyLocationField" name="property_location" />
+			  <input type="hidden" id="propertyPriceField" name="property_price" />
+			  <input type="hidden" id="propertyRefField" name="property_reference" />
 
-            <div class="form-group">
-              <label for="emailAddress">Email Address</label>
-              <input id="emailAddress" type="email" placeholder="Your email address" />
-            </div>
+			  <div class="form-group">
+				<label for="fullName">Full Name</label>
+				<input
+				  id="fullName"
+				  name="full_name"
+				  type="text"
+				  placeholder="Your full name"
+				  required
+				/>
+			  </div>
 
-            <div class="form-group">
-              <label for="message">Message</label>
-              <textarea id="message" rows="5" placeholder="I'm interested in this property. Please share more details."></textarea>
-            </div>
+			  <div class="form-group">
+				<label for="phoneNumber">Phone Number</label>
+				<input
+				  id="phoneNumber"
+				  name="phone_number"
+				  type="tel"
+				  placeholder="+94 7X XXX XXXX"
+				  required
+				/>
+			  </div>
 
-            <button type="submit" class="btn btn-primary btn-block">Send Inquiry</button>
-          </form>
-        </div>
+			  <div class="form-group">
+				<label for="emailAddress">Email Address</label>
+				<input
+				  id="emailAddress"
+				  name="email_address"
+				  type="email"
+				  placeholder="Your email address"
+				/>
+			  </div>
+
+			  <div class="form-group">
+				<label for="message">Message</label>
+				<textarea
+				  id="message"
+				  name="message"
+				  rows="5"
+				  placeholder="I'm interested in this property. Please share more details."
+				></textarea>
+			  </div>
+
+			  <button type="submit" class="btn btn-primary btn-block">Send Inquiry</button>
+			</form>
+			</div>
 
         <div class="contact-card contact-card-soft">
           <h3>Why this listing feels different</h3>
@@ -281,5 +323,15 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script type="module" src="./js/property.js"></script>
+  <script>
+    const menuToggle = document.getElementById("menuToggle");
+    const mainNav = document.getElementById("mainNav");
+
+    if (menuToggle && mainNav) {
+      menuToggle.addEventListener("click", () => {
+        mainNav.classList.toggle("active");
+      });
+    }
+  </script>
 </body>
 </html>

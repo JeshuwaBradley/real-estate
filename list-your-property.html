@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>List Your Property | VeriEstate Sri Lanka</title>
+  <meta
+    name="description"
+    content="List your property with VeriEstate Sri Lanka and present it in a clearer, more trusted, and more professional way."
+  />
+  <link rel="stylesheet" href="./css/styles.css" />
+  <link rel="stylesheet" href="./css/list-your-property.css" />
+</head>
+<body>
+  <!-- Top Bar -->
+  <div class="topbar">
+    <div class="container topbar-inner">
+      <p>Trusted Sri Lankan property discovery platform</p>
+      <div class="topbar-links">
+        <a href="#">WhatsApp</a>
+        <a href="#">Call Us</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="index.html" class="brand">
+        <span class="brand-mark">V</span>
+        <div class="brand-text">
+          <span class="brand-title">VeriEstate</span>
+          <span class="brand-subtitle">Sri Lanka</span>
+        </div>
+      </a>
+
+      <nav class="main-nav" id="mainNav">
+        <a href="index.html">Home</a>
+        <a href="properties.html">Properties</a>
+        <a href="how-it-works.html">How It Works</a>
+        <a href="list-your-property.html" class="active-link">List Your Property</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+
+      <div class="header-actions">
+        <button class="menu-toggle" id="menuToggle" aria-label="Open menu">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="list-property-hero">
+    <div class="container list-property-hero-inner">
+      <div class="list-property-copy">
+        <span class="section-label">For Property Owners</span>
+        <h1>List your property with a more professional presentation</h1>
+        <p>
+          VeriEstate helps property owners present listings with greater clarity,
+          stronger trust, and a cleaner experience for serious buyers.
+        </p>
+
+        <div class="list-property-hero-points">
+          <div class="hero-point">
+            <strong>Better Presentation</strong>
+            <span>Cleaner, more premium listing display</span>
+          </div>
+          <div class="hero-point">
+            <strong>Trust-Focused Positioning</strong>
+            <span>Stronger buyer confidence from the first view</span>
+          </div>
+          <div class="hero-point">
+            <strong>Structured Review</strong>
+            <span>More consistency in how properties are shown</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="list-property-form-card">
+        <div class="form-card-head">
+          <h2>Submit your property</h2>
+          <p>
+            Fill in the details below and our team will review your request.
+          </p>
+        </div>
+
+        <form
+          class="listing-form"
+          name="list-property"
+          method="POST"
+          data-netlify="true"
+        >
+          <input type="hidden" name="form-name" value="list-property" />
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="ownerName">Full Name</label>
+              <input
+                id="ownerName"
+                name="owner_name"
+                type="text"
+                placeholder="Your full name"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="ownerPhone">Phone Number</label>
+              <input
+                id="ownerPhone"
+                name="owner_phone"
+                type="tel"
+                placeholder="+94 7X XXX XXXX"
+                required
+              />
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="ownerEmail">Email Address</label>
+              <input
+                id="ownerEmail"
+                name="owner_email"
+                type="email"
+                placeholder="Your email address"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="district">District</label>
+              <select id="district" name="district" required>
+                <option value="">Select district</option>
+                <option value="colombo">Colombo</option>
+                <option value="gampaha">Gampaha</option>
+                <option value="kalutara">Kalutara</option>
+                <option value="kandy">Kandy</option>
+                <option value="galle">Galle</option>
+                <option value="matara">Matara</option>
+                <option value="kurunegala">Kurunegala</option>
+                <option value="negombo">Negombo</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="propertyTitle">Property Title</label>
+              <input
+                id="propertyTitle"
+                name="property_title"
+                type="text"
+                placeholder="Example: Modern Family Home in Colombo 05"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="location">Location</label>
+              <input
+                id="location"
+                name="location"
+                type="text"
+                placeholder="City / Area"
+                required
+              />
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="listingType">Listing Type</label>
+              <select id="listingType" name="listing_type" required>
+                <option value="">Select type</option>
+                <option value="sale">For Sale</option>
+                <option value="rent">For Rent</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="propertyType">Property Type</label>
+              <select id="propertyType" name="property_type" required>
+                <option value="">Select property type</option>
+                <option value="house">House</option>
+                <option value="villa">Villa</option>
+                <option value="apartment">Apartment</option>
+                <option value="land">Land</option>
+                <option value="commercial">Commercial</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-grid form-grid-3">
+            <div class="form-group">
+              <label for="price">Expected Price</label>
+              <input
+                id="price"
+                name="expected_price"
+                type="text"
+                placeholder="LKR 35,000,000"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="bedrooms">Bedrooms</label>
+              <input
+                id="bedrooms"
+                name="bedrooms"
+                type="number"
+                min="0"
+                placeholder="e.g. 3"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="landSize">Land / Size</label>
+              <input
+                id="landSize"
+                name="land_size"
+                type="text"
+                placeholder="e.g. 12 Perches"
+              />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="summary">Short Description</label>
+            <textarea
+              id="summary"
+              name="summary"
+              rows="5"
+              placeholder="Describe your property briefly..."
+              required
+            ></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="notes">Additional Notes</label>
+            <textarea
+              id="notes"
+              name="notes"
+              rows="4"
+              placeholder="Anything else you would like our team to know?"
+            ></textarea>
+          </div>
+
+          <div class="form-check-row">
+            <input id="consent" name="consent" type="checkbox" required />
+            <label for="consent">
+              I confirm that the information provided is accurate and I agree to be contacted regarding this property submission.
+            </label>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block">
+            Submit Property Request
+          </button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- Why List With Us -->
+  <section class="section">
+    <div class="container">
+      <div class="section-heading-centered">
+        <span class="section-label">Why List With VeriEstate</span>
+        <h2>A more trust-focused way to present your property</h2>
+        <p>
+          We aim to reduce noise, improve presentation quality, and help serious buyers engage with better confidence.
+        </p>
+      </div>
+
+      <div class="list-benefits-grid">
+        <article class="list-benefit-card">
+          <div class="benefit-number">01</div>
+          <h3>Clearer presentation</h3>
+          <p>
+            Your property is shown in a more structured and polished format that feels more professional to buyers.
+          </p>
+        </article>
+
+        <article class="list-benefit-card">
+          <div class="benefit-number">02</div>
+          <h3>Better buyer confidence</h3>
+          <p>
+            Trust-focused presentation helps serious inquiries come from people who understand the property better.
+          </p>
+        </article>
+
+        <article class="list-benefit-card">
+          <div class="benefit-number">03</div>
+          <h3>Stronger listing quality</h3>
+          <p>
+            More consistent property information creates a better impression than low-detail, cluttered listings.
+          </p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Process -->
+  <section class="section section-soft">
+    <div class="container">
+      <div class="section-heading-centered">
+        <span class="section-label">How It Works</span>
+        <h2>Simple steps to get started</h2>
+        <p>
+          Submit your details, let our team review the property, and we will guide you through the next steps.
+        </p>
+      </div>
+
+      <div class="listing-process-grid">
+        <div class="process-card">
+          <div class="process-step">1</div>
+          <h3>Submit your request</h3>
+          <p>
+            Share your property details through the form with your contact information and listing basics.
+          </p>
+        </div>
+
+        <div class="process-card">
+          <div class="process-step">2</div>
+          <h3>We review the property</h3>
+          <p>
+            Our team reviews the information and may reach out for clarification, images, or additional details.
+          </p>
+        </div>
+
+        <div class="process-card">
+          <div class="process-step">3</div>
+          <h3>Next-step guidance</h3>
+          <p>
+            We discuss suitability, presentation expectations, and how the property can move forward on the platform.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Seller CTA -->
+  <section class="section">
+    <div class="container">
+      <div class="list-cta-card">
+        <div>
+          <span class="section-label">Need Help First?</span>
+          <h2>Talk to our team before submitting</h2>
+          <p>
+            If you want guidance before listing, contact us and we will help you understand what details are needed.
+          </p>
+        </div>
+
+        <div class="list-cta-actions">
+          <a href="contact.html" class="btn btn-primary">Contact Us</a>
+          <a href="properties.html" class="btn btn-outline-dark">View Existing Listings</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <div class="footer-brand">VeriEstate Sri Lanka</div>
+        <p class="footer-text">
+          A trust-focused property discovery platform built for Sri Lanka.
+        </p>
+      </div>
+
+      <div>
+        <h4>Pages</h4>
+        <ul class="footer-links">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="properties.html">Properties</a></li>
+          <li><a href="list-your-property.html">List Your Property</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h4>Contact</h4>
+        <ul class="footer-links">
+          <li><a href="#">WhatsApp</a></li>
+          <li><a href="#">Call Us</a></li>
+          <li><a href="#">Email Us</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="container footer-bottom">
+      <p>© 2026 VeriEstate Sri Lanka. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script>
+    const menuToggle = document.getElementById("menuToggle");
+    const mainNav = document.getElementById("mainNav");
+
+    if (menuToggle && mainNav) {
+      menuToggle.addEventListener("click", () => {
+        mainNav.classList.toggle("active");
+      });
+    }
+  </script>
+</body>
+</html>
