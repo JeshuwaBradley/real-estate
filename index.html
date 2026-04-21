@@ -24,32 +24,32 @@
 
   <!-- Header -->
   <header class="site-header">
-    <div class="container header-inner">
-      <a href="index.html" class="brand">
-        <span class="brand-mark">V</span>
-        <div class="brand-text">
-          <span class="brand-title">VeriEstate</span>
-          <span class="brand-subtitle">Sri Lanka</span>
-        </div>
-      </a>
-
-      <nav class="main-nav" id="mainNav">
-        <a href="index.html">Home</a>
-        <a href="properties.html">Properties</a>
-        <a href="how-it-works.html">How It Works</a>
-        <a href="list-your-property.html" class="active-link">List Your Property</a>
-        <a href="contact.html">Contact</a>
-      </nav>
-
-      <div class="header-actions">
-        <button class="menu-toggle" id="menuToggle" aria-label="Open menu">
-          <span></span>
-          <span></span>
-          <span></span>
-        </button>
+  <div class="container header-inner">
+    <a href="index.html" class="brand">
+      <span class="brand-mark">V</span>
+      <div class="brand-text">
+        <span class="brand-title">VeriEstate</span>
+        <span class="brand-subtitle">Sri Lanka</span>
       </div>
+    </a>
+
+    <nav class="main-nav" id="mainNav">
+      <a href="index.html">Home</a>
+      <a href="properties.html">Properties</a>
+      <a href="how-it-works.html">How It Works</a>
+      <a href="list-your-property.html" class="active-link">List Your Property</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+
+    <div class="header-actions">
+      <button class="menu-toggle" id="menuToggle" aria-label="Open menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
     </div>
-  </header>
+  </div>
+</header>
 
 
   <!-- Hero -->
@@ -349,14 +349,23 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script type="module" src="./js/script.js"></script>
   <script>
+  document.addEventListener("DOMContentLoaded", () => {
     const menuToggle = document.getElementById("menuToggle");
     const mainNav = document.getElementById("mainNav");
+    const navLinks = mainNav ? mainNav.querySelectorAll("a") : [];
 
-    if (menuToggle && mainNav) {
-      menuToggle.addEventListener("click", () => {
-        mainNav.classList.toggle("active");
+    if (!menuToggle || !mainNav) return;
+
+    menuToggle.addEventListener("click", () => {
+      mainNav.classList.toggle("active");
+    });
+
+    navLinks.forEach((link) => {
+      link.addEventListener("click", () => {
+        mainNav.classList.remove("active");
       });
-    }
-  </script>
+    });
+  });
+</script>
 </body>
 </html>
