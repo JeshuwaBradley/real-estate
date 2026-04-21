@@ -170,7 +170,7 @@
 
 /* Active state */
 .gallery-thumb.active-thumb {
-  border-color: #0f172a;
+  border-color: #2F996E;
   transform: scale(1.05);
 }
 .gallery-thumbs-wrapper {
