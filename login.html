@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Invoice Tool Login</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/auth.css" />
+</head>
+<body>
+  <main class="auth-page">
+    <div class="auth-card">
+      <h1>Invoice Tool</h1>
+      <p class="auth-subtext">Sign in to manage and send invoices.</p>
+
+      <form id="loginForm" class="auth-form">
+        <div class="form-row">
+          <label for="email">Email</label>
+          <input id="email" type="email" required />
+        </div>
+
+        <div class="form-row">
+          <label for="password">Password</label>
+          <input id="password" type="password" required />
+        </div>
+
+        <button type="submit" class="btn btn-primary">Sign in</button>
+        <p id="loginMessage" class="form-message"></p>
+      </form>
+    </div>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module" src="./js/auth.js"></script>
+</body>
+</html>

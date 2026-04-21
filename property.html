@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Property Details | VeriEstate Sri Lanka</title>
+  <meta
+    name="description"
+    content="View verified property details, grading breakdown, inspection notes, and contact options on VeriEstate Sri Lanka."
+  />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- Top Bar -->
+  <div class="topbar">
+    <div class="container topbar-inner">
+      <p>Trusted Sri Lankan property discovery platform</p>
+      <div class="topbar-links">
+        <a href="#">WhatsApp</a>
+        <a href="#">Call Us</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="#" class="brand">
+        <span class="brand-mark">V</span>
+        <div class="brand-text">
+          <span class="brand-title">VeriEstate</span>
+          <span class="brand-subtitle">Sri Lanka</span>
+        </div>
+      </a>
+
+      <nav class="main-nav" id="mainNav">
+        <a href="#">Home</a>
+        <a href="#" class="active-link">Properties</a>
+        <a href="#">How It Works</a>
+        <a href="#">List Your Property</a>
+        <a href="#">Contact</a>
+      </nav>
+
+      <div class="header-actions">
+        <a href="#" class="btn btn-outline">Admin</a>
+        <button class="menu-toggle" id="menuToggle" aria-label="Open menu">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Property Hero -->
+  <section class="property-page-hero">
+    <div class="container">
+      <div class="breadcrumb">
+        <a href="#">Home</a>
+        <span>/</span>
+        <a href="#">Properties</a>
+        <span>/</span>
+        <span id="breadcrumbTitle">Property Details</span>
+      </div>
+
+      <div class="property-page-top">
+        <div class="property-page-heading">
+          <div class="property-page-status-row">
+            <span class="status-chip" id="listingTypeChip">For Sale</span>
+            <span class="status-chip verified-chip">Verified Listing</span>
+            <span class="status-chip verified-chip">Site Inspected</span>
+          </div>
+
+          <h1 id="propertyTitle">Contemporary Family Home in Colombo 07</h1>
+
+          <div class="property-page-meta">
+            <span id="propertyLocation">Colombo 07, Colombo District</span>
+            <span class="dot"></span>
+            <span id="propertyRef">Ref: VE-1024</span>
+          </div>
+        </div>
+
+        <div class="property-page-price-box">
+          <div class="grade-badge property-grade-large grade-a" id="propertyGrade">
+            Grade A
+          </div>
+          <div class="property-main-price" id="propertyPrice">LKR 68,000,000</div>
+          <p class="property-price-note">Professionally reviewed and presented</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Content -->
+  <section class="section property-page-section">
+    <div class="container property-page-layout">
+      <!-- Left Content -->
+      <div class="property-main-content">
+        <!-- Gallery -->
+        <div class="property-gallery-card">
+          <div class="main-gallery-image">
+            <img
+              id="mainPropertyImage"
+              src="https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg?auto=compress&cs=tinysrgb&w=1400"
+              alt="Property image"
+            />
+          </div>
+
+          <div class="gallery-thumbs" id="galleryThumbs">
+            <!-- JS injects thumbnails -->
+          </div>
+        </div>
+
+        <!-- Quick Facts -->
+        <div class="property-section-card">
+          <div class="section-heading-inline">
+            <h2>Quick Facts</h2>
+          </div>
+
+          <div class="quick-facts-grid" id="quickFactsGrid">
+            <!-- JS injects facts -->
+          </div>
+        </div>
+
+        <!-- Summary -->
+        <div class="property-section-card">
+          <div class="section-heading-inline">
+            <h2>Property Summary</h2>
+          </div>
+          <p class="property-long-summary" id="propertySummary">
+            Well-maintained family home in a prime residential area with strong overall
+            presentation, practical layout, and a more polished living environment than
+            many comparable listings in the area.
+          </p>
+        </div>
+
+        <!-- Pros & Cons -->
+        <div class="property-section-card">
+          <div class="section-heading-inline">
+            <h2>Pros & Cons</h2>
+          </div>
+
+          <div class="pros-cons-grid">
+            <div class="pros-box">
+              <h3>Pros</h3>
+              <ul id="prosList"></ul>
+            </div>
+
+            <div class="cons-box">
+              <h3>Cons</h3>
+              <ul id="consList"></ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Grading Breakdown -->
+        <div class="property-section-card">
+          <div class="section-heading-inline">
+            <h2>Grading Breakdown</h2>
+            <span class="grading-total" id="gradingTotal">88 / 100</span>
+          </div>
+
+          <div class="grading-list" id="gradingList">
+            <!-- JS injects score rows -->
+          </div>
+
+          <p class="legal-note">
+            Legal verification is recommended through an independent lawyer before any transaction.
+          </p>
+        </div>
+
+        <!-- Inspection Notes -->
+        <div class="property-section-card">
+          <div class="section-heading-inline">
+            <h2>Inspection Notes</h2>
+          </div>
+
+          <div class="inspection-notes">
+            <p id="inspectionNotes">
+              This property presents strongly in person and stands out for its location,
+              usable internal flow, and general condition. Minor updates may still improve
+              long-term appeal, but the overall offering is above average for the segment.
+            </p>
+          </div>
+        </div>
+
+        <!-- Related Properties -->
+        <div class="property-section-card">
+          <div class="section-heading-inline">
+            <h2>Related Properties</h2>
+          </div>
+
+          <div class="property-grid property-grid-related" id="relatedPropertiesGrid"></div>
+        </div>
+      </div>
+
+      <!-- Right Sidebar -->
+      <aside class="property-sidebar">
+        <div class="contact-card">
+          <h2>Request Details</h2>
+          <p>
+            Speak with our team for more information, property visits, or buyer support.
+          </p>
+
+          <div class="contact-action-list">
+            <a href="#" class="btn btn-primary btn-block">Call Now</a>
+            <a href="#" class="btn btn-outline btn-block">WhatsApp</a>
+            <a href="#" class="btn btn-outline-dark btn-block">Schedule Visit</a>
+          </div>
+
+          <form class="inquiry-form" id="inquiryForm">
+            <div class="form-group">
+              <label for="fullName">Full Name</label>
+              <input id="fullName" type="text" placeholder="Your full name" required />
+            </div>
+
+            <div class="form-group">
+              <label for="phoneNumber">Phone Number</label>
+              <input id="phoneNumber" type="tel" placeholder="+94 7X XXX XXXX" required />
+            </div>
+
+            <div class="form-group">
+              <label for="emailAddress">Email Address</label>
+              <input id="emailAddress" type="email" placeholder="Your email address" />
+            </div>
+
+            <div class="form-group">
+              <label for="message">Message</label>
+              <textarea id="message" rows="5" placeholder="I'm interested in this property. Please share more details."></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block">Send Inquiry</button>
+          </form>
+        </div>
+
+        <div class="contact-card contact-card-soft">
+          <h3>Why this listing feels different</h3>
+          <ul class="sidebar-points">
+            <li>Professionally presented information</li>
+            <li>Transparent grading breakdown</li>
+            <li>Inspection-backed summary</li>
+            <li>More trust-focused discovery</li>
+          </ul>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <div class="footer-brand">VeriEstate Sri Lanka</div>
+        <p class="footer-text">
+          A trust-focused property discovery platform built for Sri Lanka.
+        </p>
+      </div>
+
+      <div>
+        <h4>Pages</h4>
+        <ul class="footer-links">
+          <li><a href="#">Home</a></li>
+          <li><a href="#">Properties</a></li>
+          <li><a href="#">List Your Property</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h4>Contact</h4>
+        <ul class="footer-links">
+          <li><a href="#">WhatsApp</a></li>
+          <li><a href="#">Call Us</a></li>
+          <li><a href="#">Email Us</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="container footer-bottom">
+      <p>© 2026 VeriEstate Sri Lanka. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="property.js"></script>
+</body>
+</html>
