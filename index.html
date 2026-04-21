@@ -84,60 +84,63 @@
           <p>Explore better listings across Sri Lanka</p>
         </div>
 
-        <form class="search-form" id="searchForm">
-          <div class="form-group">
-            <label for="location">Location</label>
-            <input id="location" type="text" placeholder="Colombo, Kandy, Negombo..." />
-          </div>
+        <form id="searchForm" class="search-form">
+		  <div class="form-row">
+			<div class="form-group">
+			  <label for="location">Location</label>
+			  <input id="location" type="text" placeholder="Colombo, Kandy, Negombo..." />
+			</div>
 
-          <div class="form-row">
-            <div class="form-group">
-              <label for="budget">Budget</label>
-              <select id="budget">
-                <option value="">Any budget</option>
-                <option value="below-10m">Below LKR 10M</option>
-                <option value="10m-25m">LKR 10M - 25M</option>
-                <option value="25m-50m">LKR 25M - 50M</option>
-                <option value="above-50m">Above LKR 50M</option>
-              </select>
-            </div>
+			<div class="form-group">
+			  <label for="budget">Budget</label>
+			  <select id="budget">
+				<option value="">Any budget</option>
+				<option value="below-15m">Below LKR 15M</option>
+				<option value="15m-30m">LKR 15M - 30M</option>
+				<option value="30m-60m">LKR 30M - 60M</option>
+				<option value="above-60m">Above LKR 60M</option>
+			  </select>
+			</div>
+		  </div>
 
-            <div class="form-group">
-              <label for="grade">Minimum Grade</label>
-              <select id="grade">
-                <option value="">Any grade</option>
-                <option value="A">A</option>
-                <option value="B">B</option>
-                <option value="C">C</option>
-              </select>
-            </div>
-          </div>
+		  <div class="form-row">
+			<div class="form-group">
+			  <label for="grade">Grade</label>
+			  <select id="grade">
+				<option value="">Any grade</option>
+				<option value="A">Grade A</option>
+				<option value="B">Grade B</option>
+				<option value="C">Grade C</option>
+				<option value="D">Grade D</option>
+			  </select>
+			</div>
 
-          <div class="form-row">
-            <div class="form-group">
-              <label for="listingType">Listing Type</label>
-              <select id="listingType">
-                <option value="">Any type</option>
-                <option value="sale">For Sale</option>
-                <option value="rent">For Rent</option>
-              </select>
-            </div>
+			<div class="form-group">
+			  <label for="listingType">Listing Type</label>
+			  <select id="listingType">
+				<option value="">Any type</option>
+				<option value="sale">For Sale</option>
+				<option value="rent">For Rent</option>
+			  </select>
+			</div>
+		  </div>
 
-            <div class="form-group">
-              <label for="propertyType">Property Type</label>
-              <select id="propertyType">
-                <option value="">Any property</option>
-                <option value="house">House</option>
-                <option value="apartment">Apartment</option>
-                <option value="villa">Villa</option>
-                <option value="land">Land</option>
-              </select>
-            </div>
-          </div>
+		  <div class="form-row">
+			<div class="form-group">
+			  <label for="propertyType">Property Type</label>
+			  <select id="propertyType">
+				<option value="">Any property</option>
+				<option value="house">House</option>
+				<option value="villa">Villa</option>
+				<option value="apartment">Apartment</option>
+				<option value="land">Land</option>
+			  </select>
+			</div>
+		  </div>
 
-          <button type="submit" class="btn btn-primary btn-block">Search Properties</button>
-        </form>
-      </div>
+		  <button type="submit" class="btn btn-primary btn-block">Search Properties</button>
+		</form>
+		</div>
     </div>
   </section>
 

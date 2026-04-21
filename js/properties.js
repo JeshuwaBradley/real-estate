@@ -8,6 +8,36 @@ const filterForm = document.getElementById("filterForm");
 const clearFiltersBtn = document.getElementById("clearFiltersBtn");
 const sortBy = document.getElementById("sortBy");
 
+const searchLocation = document.getElementById("searchLocation");
+const listingType = document.getElementById("listingType");
+const propertyType = document.getElementById("propertyType");
+const grade = document.getElementById("grade");
+const condition = document.getElementById("condition");
+const bedrooms = document.getElementById("bedrooms");
+const budget = document.getElementById("budget");
+
+function applyFiltersFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+
+  const locationValue = params.get("location") || "";
+  const budgetValue = params.get("budget") || "";
+  const gradeValue = params.get("grade") || "";
+  const listingTypeValue = params.get("listingType") || "";
+  const propertyTypeValue = params.get("propertyType") || "";
+
+  const searchLocation = document.getElementById("searchLocation");
+  const budget = document.getElementById("budget");
+  const grade = document.getElementById("grade");
+  const listingType = document.getElementById("listingType");
+  const propertyType = document.getElementById("propertyType");
+
+  if (searchLocation) searchLocation.value = locationValue;
+  if (budget) budget.value = budgetValue;
+  if (grade) grade.value = gradeValue;
+  if (listingType) listingType.value = listingTypeValue;
+  if (propertyType) propertyType.value = propertyTypeValue;
+}
+
 function moneyLkr(value) {
   return new Intl.NumberFormat("en-LK", {
     style: "currency",
@@ -16,8 +46,8 @@ function moneyLkr(value) {
   }).format(Number(value) || 0);
 }
 
-function getGradeClass(grade) {
-  switch (grade) {
+function getGradeClass(gradeValue) {
+  switch (gradeValue) {
     case "A":
       return "grade-a";
     case "B":
@@ -31,14 +61,14 @@ function getGradeClass(grade) {
   }
 }
 
-function getBudgetMatch(price, budget) {
+function getBudgetMatch(price, budgetValue) {
   const numericPrice = Number(price) || 0;
 
-  if (!budget) return true;
-  if (budget === "below-15m") return numericPrice < 15000000;
-  if (budget === "15m-30m") return numericPrice >= 15000000 && numericPrice <= 30000000;
-  if (budget === "30m-60m") return numericPrice > 30000000 && numericPrice <= 60000000;
-  if (budget === "above-60m") return numericPrice > 60000000;
+  if (!budgetValue) return true;
+  if (budgetValue === "below-15m") return numericPrice < 15000000;
+  if (budgetValue === "15m-30m") return numericPrice >= 15000000 && numericPrice <= 30000000;
+  if (budgetValue === "30m-60m") return numericPrice > 30000000 && numericPrice <= 60000000;
+  if (budgetValue === "above-60m") return numericPrice > 60000000;
 
   return true;
 }
@@ -64,6 +94,15 @@ function normaliseProperty(row) {
   };
 }
 
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
 function renderProperties(items) {
   if (!propertyGrid) return;
 
@@ -78,22 +117,23 @@ function renderProperties(items) {
         </div>
       </div>
     `;
+
     if (resultsCount) {
       resultsCount.textContent = "Showing 0 properties";
     }
+
     return;
   }
 
   propertyGrid.innerHTML = items
     .map((property) => {
-      const listingLabel =
-        property.listingType === "rent" ? "For Rent" : "For Sale";
+      const listingLabel = property.listingType === "rent" ? "For Rent" : "For Sale";
 
       return `
         <article class="property-card">
           <div class="property-image-wrap">
-            <img src="${property.image}" alt="${property.title}" />
-            <span class="grade-badge ${getGradeClass(property.grade)}">Grade ${property.grade}</span>
+            <img src="${escapeHtml(property.image)}" alt="${escapeHtml(property.title)}" />
+            <span class="grade-badge ${getGradeClass(property.grade)}">Grade ${escapeHtml(property.grade)}</span>
           </div>
 
           <div class="property-body">
@@ -103,21 +143,21 @@ function renderProperties(items) {
             </div>
 
             <div class="property-meta">
-              <span class="property-location">${property.location}</span>
-              <span class="property-price">${property.priceDisplay}</span>
+              <span class="property-location">${escapeHtml(property.location)}</span>
+              <span class="property-price">${escapeHtml(property.priceDisplay)}</span>
             </div>
 
-            <h3 class="property-title">${property.title}</h3>
-            <p class="property-summary">${property.summary}</p>
+            <h3 class="property-title">${escapeHtml(property.title)}</h3>
+            <p class="property-summary">${escapeHtml(property.summary)}</p>
 
             <div class="property-facts">
-              ${property.facts.map((fact) => `<span class="fact-pill">${fact}</span>`).join("")}
+              ${property.facts.map((fact) => `<span class="fact-pill">${escapeHtml(fact)}</span>`).join("")}
             </div>
 
             <div class="property-footer">
-              <a href="./property.html?id=${property.id}" class="view-link">View Property</a>
+              <a href="./property.html?id=${encodeURIComponent(property.id)}" class="view-link">View Property</a>
               <div class="property-card-actions">
-                <a href="./property.html?id=${property.id}" class="btn btn-outline">Request Details</a>
+                <a href="./property.html?id=${encodeURIComponent(property.id)}" class="btn btn-outline">Request Details</a>
               </div>
             </div>
           </div>
@@ -132,20 +172,24 @@ function renderProperties(items) {
 }
 
 function getFilteredProperties() {
-  const location = document.getElementById("searchLocation")?.value.trim().toLowerCase() || "";
-  const listingTypeValue = document.getElementById("listingType")?.value || "";
-  const propertyTypeValue = document.getElementById("propertyType")?.value || "";
-  const gradeValue = document.getElementById("grade")?.value || "";
-  const conditionValue = document.getElementById("condition")?.value || "";
-  const bedroomsValue = document.getElementById("bedrooms")?.value || "";
-  const budgetValue = document.getElementById("budget")?.value || "";
+  const locationValue = searchLocation?.value.trim().toLowerCase() || "";
+  const listingTypeValue = listingType?.value || "";
+  const propertyTypeValue = propertyType?.value || "";
+  const gradeValue = grade?.value || "";
+  const conditionValue = condition?.value || "";
+  const bedroomsValue = bedrooms?.value || "";
+  const budgetValue = budget?.value || "";
 
   return properties.filter((property) => {
+    const propertyLocation = (property.location || "").toLowerCase();
+    const propertyDistrict = (property.district || "").toLowerCase();
+    const propertyTitle = (property.title || "").toLowerCase();
+
     const matchesLocation =
-      !location ||
-      property.location.toLowerCase().includes(location) ||
-      property.district.toLowerCase().includes(location) ||
-      property.title.toLowerCase().includes(location);
+      !locationValue ||
+      propertyLocation.includes(locationValue) ||
+      propertyDistrict.includes(locationValue) ||
+      propertyTitle.includes(locationValue);
 
     const matchesListingType =
       !listingTypeValue || property.listingType === listingTypeValue;
@@ -256,6 +300,7 @@ async function fetchProperties() {
     if (resultsCount) {
       resultsCount.textContent = "Showing 0 properties";
     }
+
     return;
   }
 
@@ -271,13 +316,32 @@ function setupFilters() {
     updateProperties();
   });
 
+  const liveFilterElements = [
+    searchLocation,
+    listingType,
+    propertyType,
+    grade,
+    condition,
+    bedrooms,
+    budget
+  ];
+
+  liveFilterElements.forEach((element) => {
+    if (!element) return;
+
+    const eventName = element.tagName === "INPUT" ? "input" : "change";
+    element.addEventListener(eventName, updateProperties);
+  });
+
   sortBy?.addEventListener("change", updateProperties);
 
   clearFiltersBtn?.addEventListener("click", () => {
     filterForm.reset();
+
     if (sortBy) {
       sortBy.value = "recommended";
     }
+
     updateProperties();
   });
 }
@@ -296,5 +360,6 @@ function setupMobileMenu() {
 document.addEventListener("DOMContentLoaded", async () => {
   setupFilters();
   setupMobileMenu();
+  applyFiltersFromUrl();
   await fetchProperties();
 });
