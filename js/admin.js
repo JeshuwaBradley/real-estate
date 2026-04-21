@@ -104,9 +104,9 @@ function renderProperties(items) {
             ${property.price_display || moneyLkr(property.price || 0)}
           </td>
 
-          <td>
+          <!--<td>
             <span class="admin-ref-code">${property.reference_code || "-"}</span>
-          </td>
+          </td>-->
 
           <td>
             <div class="admin-row-actions">
