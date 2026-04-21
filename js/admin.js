@@ -26,6 +26,11 @@ const adminToastContainer = document.getElementById("adminToastContainer");
 const adminSavingOverlay = document.getElementById("adminSavingOverlay");
 const adminSavingText = document.getElementById("adminSavingText");
 
+const errorDialog = document.getElementById("errorDialog");
+const errorDialogMessage = document.getElementById("errorDialogMessage");
+const closeErrorDialogBtn = document.getElementById("closeErrorDialogBtn");
+const dismissErrorDialogBtn = document.getElementById("dismissErrorDialogBtn");
+
 function moneyLkr(value) {
   return new Intl.NumberFormat("en-LK", {
     style: "currency",
@@ -59,7 +64,21 @@ function showToast(message, type = "error", title = null) {
     toast.remove();
   }, 4000);
 }
+function showErrorPopup(message) {
+  if (!errorDialog || !errorDialogMessage) {
+    showToast(message, "error", "Save failed");
+    return;
+  }
 
+  errorDialogMessage.textContent = message || "Something went wrong.";
+  errorDialog.showModal();
+}
+
+function closeErrorPopup() {
+  if (errorDialog?.open) {
+    errorDialog.close();
+  }
+}
 function setSavingState(isSaving, text = "Saving property...") {
   if (savePropertyBtn) {
     savePropertyBtn.classList.toggle("is-loading", isSaving);
@@ -614,6 +633,8 @@ function setupDialog() {
   closePropertyDialogBtn?.addEventListener("click", closeDialog);
   cancelPropertyBtn?.addEventListener("click", closeDialog);
   closeViewPropertyDialogBtn?.addEventListener("click", closeViewDialog);
+  closeErrorDialogBtn?.addEventListener("click", closeErrorPopup);
+  dismissErrorDialogBtn?.addEventListener("click", closeErrorPopup);
 
   propertyForm?.addEventListener("submit", async (event) => {
 	  event.preventDefault();

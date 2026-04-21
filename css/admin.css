@@ -938,6 +938,27 @@
     transform: translateY(0);
   }
 }
+.admin-alert-dialog {
+  width: min(480px, calc(100vw - 24px));
+}
+
+.admin-alert-body {
+  padding: 24px;
+  display: grid;
+  gap: 18px;
+}
+
+.admin-alert-body p {
+  margin: 0;
+  color: var(--text);
+  line-height: 1.7;
+  font-size: 0.98rem;
+}
+
+.admin-alert-actions {
+  display: flex;
+  justify-content: flex-end;
+}
 @media (max-width: 820px) {
   .admin-preview-hero {
     grid-template-columns: 1fr;

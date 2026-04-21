@@ -312,6 +312,20 @@
       <p id="adminSavingText">Saving property...</p>
     </div>
   </div>
+  <dialog class="admin-dialog admin-alert-dialog" id="errorDialog">
+	  <div class="admin-dialog-head">
+		<h2>Something went wrong</h2>
+		<button class="admin-dialog-close" id="closeErrorDialogBtn" type="button">✕</button>
+	  </div>
+
+	  <div class="admin-alert-body">
+		<p id="errorDialogMessage">Unable to save the property.</p>
+
+		<div class="admin-alert-actions">
+		  <button type="button" class="btn btn-primary" id="dismissErrorDialogBtn">OK</button>
+		</div>
+	  </div>
+	</dialog>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script type="module" src="./js/admin.js"></script>
 </body>
