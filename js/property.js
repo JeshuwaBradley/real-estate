@@ -240,7 +240,6 @@ function renderGallery(property) {
       `
     )
     .join("");
-  const galleryThumbs = document.getElementById("galleryThumbs");
   const leftBtn = document.getElementById("thumbLeft");
   const rightBtn = document.getElementById("thumbRight");
   
