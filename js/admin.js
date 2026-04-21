@@ -166,7 +166,15 @@ function closeDialog() {
 async function fetchProperties() {
   const { data, error } = await supabaseClient
     .from("properties")
-    .select("*")
+    .select(`
+      *,
+      property_images (
+        id,
+        image_url,
+        is_cover,
+        sort_order
+      )
+    `)
     .order("created_at", { ascending: false });
 
   if (error) {
@@ -175,7 +183,17 @@ async function fetchProperties() {
     return;
   }
 
-  properties = data || [];
+  properties = (data || []).map((property) => {
+    const sortedImages = Array.isArray(property.property_images)
+      ? [...property.property_images].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
+      : [];
+
+    return {
+      ...property,
+      gallery_images: sortedImages
+    };
+  });
+
   filterProperties();
 }
 
@@ -183,7 +201,13 @@ async function uploadPropertyImage(file) {
   if (!file) return { imageUrl: null, storagePath: null };
 
   const fileExt = file.name.split(".").pop();
-  const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`;
+  const safeName = file.name
+    .replace(/\.[^/.]+$/, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
+  const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}-${safeName}.${fileExt}`;
   const filePath = `properties/${fileName}`;
 
   const { error: uploadError } = await supabaseClient.storage
@@ -193,9 +217,7 @@ async function uploadPropertyImage(file) {
       upsert: false
     });
 
-  if (uploadError) {
-    throw uploadError;
-  }
+  if (uploadError) throw uploadError;
 
   const { data } = supabaseClient.storage
     .from("property-images")
@@ -207,6 +229,18 @@ async function uploadPropertyImage(file) {
   };
 }
 
+async function uploadPropertyImages(files) {
+  if (!files || !files.length) return [];
+
+  const uploads = [];
+
+  for (const file of files) {
+    const uploaded = await uploadPropertyImage(file);
+    uploads.push(uploaded);
+  }
+
+  return uploads;
+}
 function getFormValues() {
   return {
     title: document.getElementById("propertyTitle").value.trim(),
@@ -232,19 +266,18 @@ function getFormValues() {
   };
 }
 
-async function createProperty(values, imageFile) {
-  let imageUrl = null;
-  let storagePath = null;
+async function createProperty(values, imageFiles) {
+  let uploadedImages = [];
 
-  if (imageFile) {
-    const upload = await uploadPropertyImage(imageFile);
-    imageUrl = upload.imageUrl;
-    storagePath = upload.storagePath;
+  if (imageFiles && imageFiles.length) {
+    uploadedImages = await uploadPropertyImages(imageFiles);
   }
+
+  const coverImage = uploadedImages[0] || null;
 
   const insertPayload = {
     ...values,
-    cover_image_url: imageUrl
+    cover_image_url: coverImage?.imageUrl || null
   };
 
   const { data, error } = await supabaseClient
@@ -255,41 +288,45 @@ async function createProperty(values, imageFile) {
 
   if (error) throw error;
 
-  if (imageUrl) {
+  if (uploadedImages.length) {
+    const propertyImagesPayload = uploadedImages.map((image, index) => ({
+      property_id: data.id,
+      image_url: image.imageUrl,
+      storage_path: image.storagePath,
+      is_cover: index === 0,
+      sort_order: index
+    }));
+
     const { error: imageError } = await supabaseClient
       .from("property_images")
-      .insert([
-        {
-          property_id: data.id,
-          image_url: imageUrl,
-          storage_path: storagePath,
-          is_cover: true,
-          sort_order: 0
-        }
-      ]);
+      .insert(propertyImagesPayload);
 
     if (imageError) throw imageError;
   }
 }
 
-async function updateProperty(id, values, imageFile) {
+async function updateProperty(id, values, imageFiles) {
   let payload = { ...values };
 
-  if (imageFile) {
-    const upload = await uploadPropertyImage(imageFile);
-    payload.cover_image_url = upload.imageUrl;
+  if (imageFiles && imageFiles.length) {
+    const uploadedImages = await uploadPropertyImages(imageFiles);
+    const coverImage = uploadedImages[0];
+
+    if (coverImage) {
+      payload.cover_image_url = coverImage.imageUrl;
+    }
+
+    const propertyImagesPayload = uploadedImages.map((image, index) => ({
+      property_id: id,
+      image_url: image.imageUrl,
+      storage_path: image.storagePath,
+      is_cover: index === 0,
+      sort_order: index
+    }));
 
     const { error: imageError } = await supabaseClient
       .from("property_images")
-      .insert([
-        {
-          property_id: id,
-          image_url: upload.imageUrl,
-          storage_path: upload.storagePath,
-          is_cover: true,
-          sort_order: 0
-        }
-      ]);
+      .insert(propertyImagesPayload);
 
     if (imageError) throw imageError;
   }
@@ -352,10 +389,13 @@ function renderFacts(facts) {
 }
 
 function renderPreview(property) {
-  const imageMarkup = property.cover_image_url
+  const gallery = Array.isArray(property.gallery_images) ? property.gallery_images : [];
+  const heroImage = property.cover_image_url || gallery[0]?.image_url || null;
+  
+  const imageMarkup = heroImage
     ? `
       <div class="admin-preview-image-wrap">
-        <img src="${property.cover_image_url}" alt="${property.title ?? "Property"}" />
+        <img src="${heroImage}" alt="${property.title ?? "Property"}" />
       </div>
     `
     : `
@@ -363,10 +403,28 @@ function renderPreview(property) {
         No property image uploaded
       </div>
     `;
+  
+  const galleryMarkup = gallery.length
+    ? `
+      <div class="admin-preview-gallery">
+        ${gallery
+          .map(
+            (image) => `
+              <img
+                class="admin-preview-gallery-thumb"
+                src="${image.image_url}"
+                alt="${property.title ?? "Property"}"
+              />
+            `
+          )
+          .join("")}
+      </div>
+    `
+    : "";
 
   viewPropertyContent.innerHTML = `
     <div class="admin-preview-hero">
-      ${imageMarkup}
+      ${galleryMarkup}
 
       <div class="admin-preview-summary">
         <div class="admin-preview-topline">
@@ -454,13 +512,14 @@ function setupDialog() {
 
     try {
       const values = getFormValues();
-      const imageFile = document.getElementById("propertyImageFile")?.files?.[0] || null;
-
+      //const imageFile = document.getElementById("propertyImageFile")?.files?.[0] || null;
+	  const imageFiles = Array.from(document.getElementById("propertyImageFile")?.files || []);
+	  
       if (editingPropertyId) {
-        await updateProperty(editingPropertyId, values, imageFile);
-      } else {
-        await createProperty(values, imageFile);
-      }
+	    await updateProperty(editingPropertyId, values, imageFiles);
+	  } else {
+	    await createProperty(values, imageFiles);
+	  }
 
       await fetchProperties();
       closeDialog();
