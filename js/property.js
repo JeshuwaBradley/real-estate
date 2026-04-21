@@ -1,75 +1,20 @@
-const propertyData = {
-  ref: "VE-1024",
-  title: "Contemporary Family Home in Colombo 07",
-  location: "Colombo 07, Colombo District",
-  listingType: "For Sale",
-  price: "LKR 68,000,000",
-  grade: "A",
-  totalScore: 88,
-  summary:
-    "Well-maintained family home in a prime residential area with strong overall presentation, practical internal flow, and a more polished residential setting than many comparable properties currently available.",
-  inspectionNotes:
-    "This property presents strongly in person and stands out for its location, usable internal flow, and general maintenance standard. The structure appears sound at a visual level, and the home offers a comfortable move-in-ready experience with only limited cosmetic improvements likely to add further value.",
-  quickFacts: [
-    { label: "Bedrooms", value: "4" },
-    { label: "Bathrooms", value: "3" },
-    { label: "Land Size", value: "12 Perches" },
-    { label: "Building Size", value: "4,200 sqft" },
-    { label: "Parking", value: "2 Vehicles" },
-    { label: "Condition", value: "Move-in Ready" },
-    { label: "Property Type", value: "House" },
-    { label: "District", value: "Colombo" }
-  ],
-  pros: [
-    "Prime residential location with strong convenience",
-    "Well-kept interiors and solid overall presentation",
-    "Good natural light and practical internal layout",
-    "More confidence-inspiring than many comparable listings"
-  ],
-  cons: [
-    "Some buyers may still prefer minor interior modernization",
-    "Price point places it in a more premium segment",
-    "Parking capacity may feel limited for larger households"
-  ],
-  grading: [
-    { label: "Structural Condition", score: 18, max: 20 },
-    { label: "Interior Quality", score: 13, max: 15 },
-    { label: "Exterior & Land", score: 12, max: 15 },
-    { label: "Location & Accessibility", score: 19, max: 20 },
-    { label: "Functional Layout", score: 9, max: 10 },
-    { label: "Utilities & Infrastructure", score: 9, max: 10 },
-    { label: "Legal Confidence", score: 8, max: 10 }
-  ],
-  gallery: [
-    "https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg?auto=compress&cs=tinysrgb&w=1400",
-    "https://images.pexels.com/photos/323780/pexels-photo-323780.jpeg?auto=compress&cs=tinysrgb&w=1400",
-    "https://images.pexels.com/photos/259588/pexels-photo-259588.jpeg?auto=compress&cs=tinysrgb&w=1400",
-    "https://images.pexels.com/photos/280229/pexels-photo-280229.jpeg?auto=compress&cs=tinysrgb&w=1400"
-  ]
-};
+import { supabaseClient } from "./supabase.js";
 
-const relatedProperties = [
-  {
-    title: "Refined Villa in Rajagiriya",
-    location: "Rajagiriya",
-    price: "LKR 54,000,000",
-    grade: "A",
-    summary: "A polished city-edge home with strong presentation and practical comfort.",
-    image:
-      "https://images.pexels.com/photos/439391/pexels-photo-439391.jpeg?auto=compress&cs=tinysrgb&w=1200",
-    facts: ["3 Beds", "2 Baths", "2,800 sqft"]
-  },
-  {
-    title: "Premium Residence in Dehiwala",
-    location: "Dehiwala",
-    price: "LKR 47,500,000",
-    grade: "B",
-    summary: "A spacious family-oriented property with strong convenience and good value.",
-    image:
-      "https://images.pexels.com/photos/280222/pexels-photo-280222.jpeg?auto=compress&cs=tinysrgb&w=1200",
-    facts: ["4 Beds", "3 Baths", "3,600 sqft"]
-  }
-];
+let currentProperty = null;
+let relatedProperties = [];
+
+function moneyLkr(value) {
+  return new Intl.NumberFormat("en-LK", {
+    style: "currency",
+    currency: "LKR",
+    maximumFractionDigits: 0
+  }).format(Number(value) || 0);
+}
+
+function getUrlPropertyId() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get("id");
+}
 
 function getGradeClass(grade) {
   switch (grade) {
@@ -86,57 +31,179 @@ function getGradeClass(grade) {
   }
 }
 
-function renderPropertyHeader() {
-  document.getElementById("breadcrumbTitle").textContent = propertyData.title;
-  document.getElementById("propertyTitle").textContent = propertyData.title;
-  document.getElementById("propertyLocation").textContent = propertyData.location;
-  document.getElementById("propertyRef").textContent = `Ref: ${propertyData.ref}`;
-  document.getElementById("propertyPrice").textContent = propertyData.price;
-  document.getElementById("propertySummary").textContent = propertyData.summary;
-  document.getElementById("inspectionNotes").textContent = propertyData.inspectionNotes;
-  document.getElementById("gradingTotal").textContent = `${propertyData.totalScore} / 100`;
-
-  const gradeElement = document.getElementById("propertyGrade");
-  gradeElement.textContent = `Grade ${propertyData.grade}`;
-  gradeElement.className = `grade-badge property-grade-large ${getGradeClass(propertyData.grade)}`;
-
-  document.getElementById("listingTypeChip").textContent = propertyData.listingType;
+function formatListingType(value) {
+  if (value === "rent") return "For Rent";
+  if (value === "sale") return "For Sale";
+  return "Listing";
 }
 
-function renderQuickFacts() {
+function capitaliseWords(value) {
+  return String(value || "")
+    .split("-")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
+function normaliseProperty(row) {
+  const images = Array.isArray(row.property_images)
+    ? [...row.property_images].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
+    : [];
+
+  const gallery = images.map((item) => item.image_url).filter(Boolean);
+  const coverImage = row.cover_image_url || gallery[0] || "https://placehold.co/1400x900?text=No+Image";
+
+  return {
+    id: row.id,
+    title: row.title ?? "Untitled Property",
+    location: row.location ?? "",
+    district: row.district ?? "",
+    referenceCode: row.reference_code ?? "-",
+    listingType: row.listing_type ?? "",
+    price: Number(row.price) || 0,
+    priceDisplay: row.price_display?.trim() || moneyLkr(row.price),
+    grade: row.grade ?? "B",
+    summary: row.summary ?? "No summary added.",
+    condition: row.condition ?? "",
+    bedrooms: Number(row.bedrooms) || 0,
+    propertyType: row.property_type ?? "",
+    verified: !!row.verified,
+    facts: Array.isArray(row.facts) ? row.facts : [],
+    coverImage,
+    gallery: gallery.length ? gallery : [coverImage],
+    propertyImages: images,
+    pros: Array.isArray(row.pros) ? row.pros : [],
+    cons: Array.isArray(row.cons) ? row.cons : [],
+    grading: Array.isArray(row.grading) ? row.grading : [],
+    totalScore: Number(row.total_score) || null,
+    inspectionNotes: row.inspection_notes ?? "",
+    createdAt: row.created_at ?? null
+  };
+}
+
+function setText(id, value) {
+  const element = document.getElementById(id);
+  if (element) element.textContent = value;
+}
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function renderPropertyHeader(property) {
+  document.title = `${property.title} | VeriEstate Sri Lanka`;
+
+  setText("breadcrumbTitle", property.title);
+  setText("propertyTitle", property.title);
+  setText(
+    "propertyLocation",
+    `${property.location}${property.district ? `, ${property.district} District` : ""}`
+  );
+  setText("propertyRef", `Ref: ${property.referenceCode}`);
+  setText("propertyPrice", property.priceDisplay);
+  setText("propertySummary", property.summary);
+
+  const listingTypeChip = document.getElementById("listingTypeChip");
+  if (listingTypeChip) {
+    listingTypeChip.textContent = formatListingType(property.listingType);
+  }
+
+  const gradeElement = document.getElementById("propertyGrade");
+  if (gradeElement) {
+    gradeElement.textContent = `Grade ${property.grade}`;
+    gradeElement.className = `grade-badge property-grade-large ${getGradeClass(property.grade)}`;
+  }
+}
+
+function renderQuickFacts(property) {
   const quickFactsGrid = document.getElementById("quickFactsGrid");
-  quickFactsGrid.innerHTML = propertyData.quickFacts
+  if (!quickFactsGrid) return;
+
+  const quickFacts = [
+    { label: "Bedrooms", value: property.bedrooms || "-" },
+    { label: "Condition", value: property.condition ? capitaliseWords(property.condition) : "-" },
+    { label: "Property Type", value: property.propertyType ? capitaliseWords(property.propertyType) : "-" },
+    { label: "District", value: property.district || "-" },
+    { label: "Listing Type", value: formatListingType(property.listingType) },
+    { label: "Verified", value: property.verified ? "Yes" : "No" }
+  ];
+
+  quickFactsGrid.innerHTML = quickFacts
     .map(
       (fact) => `
         <div class="quick-fact-item">
-          <span class="quick-fact-label">${fact.label}</span>
-          <span class="quick-fact-value">${fact.value}</span>
+          <span class="quick-fact-label">${escapeHtml(fact.label)}</span>
+          <span class="quick-fact-value">${escapeHtml(fact.value)}</span>
         </div>
       `
     )
     .join("");
 }
 
-function renderProsCons() {
+function renderProsCons(property) {
   const prosList = document.getElementById("prosList");
   const consList = document.getElementById("consList");
+  if (!prosList || !consList) return;
 
-  prosList.innerHTML = propertyData.pros.map((item) => `<li>${item}</li>`).join("");
-  consList.innerHTML = propertyData.cons.map((item) => `<li>${item}</li>`).join("");
+  const fallbackPros = [
+    "Verified property information",
+    "Clear pricing and summary",
+    "Structured listing presentation"
+  ];
+
+  const fallbackCons = [
+    "Independent legal review is still recommended"
+  ];
+
+  const pros = property.pros.length ? property.pros : fallbackPros;
+  const cons = property.cons.length ? property.cons : fallbackCons;
+
+  prosList.innerHTML = pros.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
+  consList.innerHTML = cons.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
 }
 
-function renderGrading() {
+function renderGrading(property) {
   const gradingList = document.getElementById("gradingList");
+  const gradingTotal = document.getElementById("gradingTotal");
+  if (!gradingList || !gradingTotal) return;
 
-  gradingList.innerHTML = propertyData.grading
+  if (!property.grading.length) {
+    gradingList.innerHTML = `
+      <div class="grade-row">
+        <div class="grade-row-top">
+          <span>Overall Listing Quality</span>
+          <span>${property.grade ? `Grade ${escapeHtml(property.grade)}` : "-"}</span>
+        </div>
+        <div class="grade-bar">
+          <div class="grade-bar-fill" style="width: 75%;"></div>
+        </div>
+      </div>
+    `;
+    gradingTotal.textContent = property.totalScore ? `${property.totalScore} / 100` : "N/A";
+    return;
+  }
+
+  const computedTotal = property.grading.reduce((sum, item) => sum + (Number(item.score) || 0), 0);
+  const computedMax = property.grading.reduce((sum, item) => sum + (Number(item.max) || 0), 0);
+  const total = property.totalScore || computedTotal;
+
+  gradingTotal.textContent = computedMax ? `${total} / ${computedMax}` : `${total}`;
+
+  gradingList.innerHTML = property.grading
     .map((item) => {
-      const percentage = (item.score / item.max) * 100;
+      const score = Number(item.score) || 0;
+      const max = Number(item.max) || 0;
+      const percentage = max ? (score / max) * 100 : 0;
 
       return `
         <div class="grade-row">
           <div class="grade-row-top">
-            <span>${item.label}</span>
-            <span>${item.score} / ${item.max}</span>
+            <span>${escapeHtml(item.label ?? "Score")}</span>
+            <span>${score} / ${max}</span>
           </div>
           <div class="grade-bar">
             <div class="grade-bar-fill" style="width: ${percentage}%;"></div>
@@ -147,24 +214,34 @@ function renderGrading() {
     .join("");
 }
 
-function renderGallery() {
+function renderInspectionNotes(property) {
+  setText(
+    "inspectionNotes",
+    property.inspectionNotes || "Inspection notes have not been added for this property yet."
+  );
+}
+
+function renderGallery(property) {
   const mainImage = document.getElementById("mainPropertyImage");
   const galleryThumbs = document.getElementById("galleryThumbs");
+  if (!mainImage || !galleryThumbs) return;
 
-  mainImage.src = propertyData.gallery[0];
+  const gallery = property.gallery.length ? property.gallery : [property.coverImage];
 
-  galleryThumbs.innerHTML = propertyData.gallery
+  mainImage.src = gallery[0];
+  mainImage.alt = property.title;
+
+  galleryThumbs.innerHTML = gallery
     .map(
       (image, index) => `
-        <button class="gallery-thumb ${index === 0 ? "active-thumb" : ""}" data-image="${image}" type="button">
-          <img src="${image}" alt="Property thumbnail ${index + 1}" />
+        <button class="gallery-thumb ${index === 0 ? "active-thumb" : ""}" data-image="${escapeHtml(image)}" type="button">
+          <img src="${escapeHtml(image)}" alt="Property thumbnail ${index + 1}" />
         </button>
       `
     )
     .join("");
 
   const thumbs = document.querySelectorAll(".gallery-thumb");
-
   thumbs.forEach((thumb) => {
     thumb.addEventListener("click", () => {
       const selectedImage = thumb.dataset.image;
@@ -176,33 +253,45 @@ function renderGallery() {
   });
 }
 
-function renderRelatedProperties() {
+function renderRelatedProperties(items) {
   const relatedGrid = document.getElementById("relatedPropertiesGrid");
+  if (!relatedGrid) return;
 
-  relatedGrid.innerHTML = relatedProperties
+  if (!items.length) {
+    relatedGrid.innerHTML = `
+      <div class="property-section-empty">
+        <p>No related properties available right now.</p>
+      </div>
+    `;
+    return;
+  }
+
+  relatedGrid.innerHTML = items
     .map((property) => {
+      const facts = Array.isArray(property.facts) ? property.facts.slice(0, 3) : [];
+
       return `
         <article class="property-card">
           <div class="property-image-wrap">
-            <img src="${property.image}" alt="${property.title}" />
-            <span class="grade-badge ${getGradeClass(property.grade)}">Grade ${property.grade}</span>
+            <img src="${escapeHtml(property.coverImage)}" alt="${escapeHtml(property.title)}" />
+            <span class="grade-badge ${getGradeClass(property.grade)}">Grade ${escapeHtml(property.grade)}</span>
           </div>
 
           <div class="property-body">
             <div class="property-meta">
-              <span class="property-location">${property.location}</span>
-              <span class="property-price">${property.price}</span>
+              <span class="property-location">${escapeHtml(property.location)}</span>
+              <span class="property-price">${escapeHtml(property.priceDisplay)}</span>
             </div>
 
-            <h3 class="property-title">${property.title}</h3>
-            <p class="property-summary">${property.summary}</p>
+            <h3 class="property-title">${escapeHtml(property.title)}</h3>
+            <p class="property-summary">${escapeHtml(property.summary)}</p>
 
             <div class="property-facts">
-              ${property.facts.map((fact) => `<span class="fact-pill">${fact}</span>`).join("")}
+              ${facts.map((fact) => `<span class="fact-pill">${escapeHtml(fact)}</span>`).join("")}
             </div>
 
             <div class="property-footer">
-              <a href="#" class="view-link">View Property</a>
+              <a href="./property.html?id=${property.id}" class="view-link">View Property</a>
             </div>
           </div>
         </article>
@@ -211,26 +300,28 @@ function renderRelatedProperties() {
     .join("");
 }
 
-function setupInquiryForm() {
+function setupInquiryForm(property) {
   const inquiryForm = document.getElementById("inquiryForm");
+  if (!inquiryForm) return;
 
   inquiryForm.addEventListener("submit", (event) => {
     event.preventDefault();
 
-    const fullName = document.getElementById("fullName").value.trim();
-    const phoneNumber = document.getElementById("phoneNumber").value.trim();
-    const emailAddress = document.getElementById("emailAddress").value.trim();
-    const message = document.getElementById("message").value.trim();
+    const fullName = document.getElementById("fullName")?.value.trim() || "";
+    const phoneNumber = document.getElementById("phoneNumber")?.value.trim() || "";
+    const emailAddress = document.getElementById("emailAddress")?.value.trim() || "";
+    const message = document.getElementById("message")?.value.trim() || "";
 
     console.log("Inquiry submitted:", {
-      propertyRef: propertyData.ref,
+      propertyId: property.id,
+      propertyRef: property.referenceCode,
       fullName,
       phoneNumber,
       emailAddress,
       message
     });
 
-    alert("Inquiry form UI is ready. We can connect this to Supabase and Netlify Functions next.");
+    alert("Inquiry form UI is ready. Next we can connect this to Supabase or Netlify Functions.");
     inquiryForm.reset();
   });
 }
@@ -246,13 +337,105 @@ function setupMobileMenu() {
   });
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  renderPropertyHeader();
-  renderQuickFacts();
-  renderProsCons();
-  renderGrading();
-  renderGallery();
-  renderRelatedProperties();
-  setupInquiryForm();
+function renderNotFound(message = "Property not found.") {
+  const mainSection = document.querySelector(".property-page-section .property-main-content");
+  if (mainSection) {
+    mainSection.innerHTML = `
+      <div class="property-section-card">
+        <div class="section-heading-inline">
+          <h2>${escapeHtml(message)}</h2>
+        </div>
+        <p class="property-long-summary">
+          The property may have been removed, is no longer published, or the link is invalid.
+        </p>
+        <p>
+          <a href="./properties.html" class="btn btn-primary">Back to Properties</a>
+        </p>
+      </div>
+    `;
+  }
+}
+
+async function fetchProperty(propertyId) {
+  const { data, error } = await supabaseClient
+    .from("properties")
+    .select(`
+      *,
+      property_images (
+        id,
+        image_url,
+        storage_path,
+        is_cover,
+        sort_order
+      )
+    `)
+    .eq("id", propertyId)
+    .eq("status", "published")
+    .single();
+
+  if (error) throw error;
+  return normaliseProperty(data);
+}
+
+async function fetchRelatedProperties(property) {
+  const { data, error } = await supabaseClient
+    .from("properties")
+    .select(`
+      id,
+      title,
+      location,
+      district,
+      price,
+      price_display,
+      grade,
+      listing_type,
+      property_type,
+      condition,
+      bedrooms,
+      summary,
+      cover_image_url,
+      facts,
+      verified,
+      created_at
+    `)
+    .eq("status", "published")
+    .neq("id", property.id)
+    .eq("district", property.district)
+    .limit(3);
+
+  if (error) {
+    console.error("Related properties fetch error:", error);
+    return [];
+  }
+
+  return (data || []).map(normaliseProperty);
+}
+
+async function initPage() {
   setupMobileMenu();
-});
+
+  const propertyId = getUrlPropertyId();
+  if (!propertyId) {
+    renderNotFound("No property selected.");
+    return;
+  }
+
+  try {
+    currentProperty = await fetchProperty(propertyId);
+    relatedProperties = await fetchRelatedProperties(currentProperty);
+
+    renderPropertyHeader(currentProperty);
+    renderQuickFacts(currentProperty);
+    renderProsCons(currentProperty);
+    renderGrading(currentProperty);
+    renderInspectionNotes(currentProperty);
+    renderGallery(currentProperty);
+    renderRelatedProperties(relatedProperties);
+    setupInquiryForm(currentProperty);
+  } catch (error) {
+    console.error("Property load error:", error);
+    renderNotFound("Unable to load this property.");
+  }
+}
+
+document.addEventListener("DOMContentLoaded", initPage);
