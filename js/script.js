@@ -138,7 +138,10 @@ function buildListingsUrl(filters) {
 
 async function fetchFeaturedProperties() {
   const propertyGrid = document.getElementById("propertyGrid");
-  if (!propertyGrid) return;
+  if (!propertyGrid) {
+    console.error("No #propertyGrid found on the home page.");
+    return;
+  }
 
   propertyGrid.innerHTML = `
     <div class="property-card" style="grid-column: 1 / -1;">
@@ -175,6 +178,8 @@ async function fetchFeaturedProperties() {
     .order("created_at", { ascending: false })
     .limit(12);
 
+  console.log("Featured properties fetch:", { data, error });
+
   if (error) {
     console.error("Error fetching featured properties:", error);
 
@@ -182,7 +187,7 @@ async function fetchFeaturedProperties() {
       <div class="property-card" style="grid-column: 1 / -1;">
         <div class="property-body">
           <h3 class="property-title">Failed to load featured properties</h3>
-          <p class="property-summary">Please try again later.</p>
+          <p class="property-summary">${error.message}</p>
         </div>
       </div>
     `;
@@ -191,10 +196,14 @@ async function fetchFeaturedProperties() {
 
   featuredProperties = (data || []).map(normaliseProperty);
 
-  const featuredOnly = featuredProperties.filter((property) => property.featured);
-  const finalItems = featuredOnly.length ? featuredOnly.slice(0, 3) : featuredProperties.slice(0, 3);
-
-  renderFeaturedProperties(finalItems);
+  //const featuredOnly = featuredProperties.filter((property) => property.featured);
+  //const finalItems = featuredOnly.length
+  //  ? featuredOnly.slice(0, 3)
+  //  : featuredProperties.slice(0, 3);
+  //
+  //renderFeaturedProperties(finalItems);
+  const latestThree = featuredProperties.slice(0, 3);
+  renderFeaturedProperties(latestThree);
 }
 
 function setupMobileMenu() {
