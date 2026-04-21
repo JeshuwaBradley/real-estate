@@ -247,41 +247,69 @@
   cursor: pointer;
   font-weight: 600;
 }
-
 .admin-dialog {
-  width: min(860px, calc(100% - 24px));
-  border: none;
-  border-radius: 24px;
+  width: min(920px, calc(100vw - 32px));
+  max-height: min(88vh, 900px);
+  margin: auto;
+  inset: 0;
   padding: 0;
-  box-shadow: 0 30px 80px rgba(31, 41, 51, 0.22);
+  border: 1px solid rgba(230, 225, 215, 0.9);
+  border-radius: 28px;
+  background: #ffffff;
+  color: var(--text);
+  box-shadow: 0 35px 100px rgba(31, 41, 51, 0.24);
+  overflow: hidden;
 }
 
 .admin-dialog::backdrop {
-  background: rgba(22, 29, 33, 0.48);
+  background: rgba(22, 29, 33, 0.55);
+  backdrop-filter: blur(4px);
 }
 
 .admin-dialog-head {
-  padding: 20px 24px;
+  padding: 22px 26px;
   border-bottom: 1px solid #eee8dc;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
+  background: linear-gradient(to bottom, #fffdf9, #ffffff);
+}
+
+.admin-dialog-head h2 {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #1f2933;
 }
 
 .admin-dialog-close {
-  width: 40px;
-  height: 40px;
+  width: 42px;
+  height: 42px;
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: 14px;
   background: #fff;
+  color: var(--text);
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  transition: 0.2s ease;
+}
+
+.admin-dialog-close:hover {
+  background: #f9f7f2;
+  border-color: #d9d1c4;
 }
 
 .admin-form {
-  padding: 24px;
+  padding: 26px;
   display: grid;
-  gap: 18px;
+  gap: 20px;
+  max-height: calc(88vh - 84px);
+  overflow-y: auto;
+  background: #ffffff;
 }
 
 .admin-form-grid {
@@ -290,38 +318,125 @@
 }
 
 .admin-form-grid.two-col {
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .admin-form-grid.three-col {
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
-.admin-form textarea,
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-size: 0.93rem;
+  font-weight: 600;
+  color: #39424c;
+  line-height: 1.4;
+}
+
+.admin-form input,
+.admin-form select,
+.admin-form textarea {
+  width: 100%;
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--text);
+  border-radius: 14px;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
 .admin-form input,
 .admin-form select {
-  width: 100%;
-  min-height: 50px;
-  border: 1px solid var(--line);
-  border-radius: 14px;
+  min-height: 52px;
   padding: 0 16px;
-  outline: none;
 }
 
 .admin-form textarea {
   min-height: 130px;
-  padding-top: 14px;
+  padding: 14px 16px;
   resize: vertical;
+  line-height: 1.55;
+}
+
+.admin-form input:focus,
+.admin-form select:focus,
+.admin-form textarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(47, 107, 95, 0.1);
+  background: #fff;
+}
+
+.admin-form input::placeholder,
+.admin-form textarea::placeholder {
+  color: #98a2ad;
+}
+
+.admin-form input[type="file"] {
+  min-height: auto;
+  padding: 12px 14px;
+  background: #fcfbf8;
+}
+
+.admin-form input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  min-height: auto;
+  padding: 0;
+  accent-color: var(--primary);
+}
+
+.form-group label:has(input[type="checkbox"]) {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+  cursor: pointer;
 }
 
 .admin-form-actions {
   display: flex;
-  justify-content: end;
+  justify-content: flex-end;
   gap: 12px;
   flex-wrap: wrap;
-  margin-top: 6px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #f1ece2;
 }
 
+.admin-form-actions .btn {
+  min-width: 150px;
+}
+
+@media (max-width: 760px) {
+  .admin-dialog {
+    width: min(100vw - 20px, 920px);
+    max-height: 92vh;
+    border-radius: 22px;
+  }
+
+  .admin-dialog-head,
+  .admin-form {
+    padding: 18px;
+  }
+
+  .admin-form-grid.two-col,
+  .admin-form-grid.three-col {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-form-actions {
+    flex-direction: column-reverse;
+  }
+
+  .admin-form-actions .btn {
+    width: 100%;
+  }
+}
 @media (max-width: 1100px) {
   .admin-shell {
     grid-template-columns: 1fr;
