@@ -63,7 +63,6 @@ function normaliseProperty(row) {
     image: row.cover_image_url || "https://placehold.co/1200x800?text=No+Image",
     facts: Array.isArray(row.facts) ? row.facts : [],
     verified: !!row.verified,
-    featured: !!row.featured,
     createdAt: row.created_at ?? null
   };
 }
@@ -146,7 +145,7 @@ async function fetchFeaturedProperties() {
   propertyGrid.innerHTML = `
     <div class="property-card" style="grid-column: 1 / -1;">
       <div class="property-body">
-        <h3 class="property-title">Loading featured properties...</h3>
+        <h3 class="property-title">Loading latest properties...</h3>
         <p class="property-summary">Please wait while listings are being fetched.</p>
       </div>
     </div>
@@ -170,23 +169,22 @@ async function fetchFeaturedProperties() {
       cover_image_url,
       facts,
       verified,
-      featured,
       status,
       created_at
     `)
     .eq("status", "published")
     .order("created_at", { ascending: false })
-    .limit(12);
+    .limit(3);
 
-  console.log("Featured properties fetch:", { data, error });
+  console.log("Latest properties fetch:", { data, error });
 
   if (error) {
-    console.error("Error fetching featured properties:", error);
+    console.error("Error fetching latest properties:", error);
 
     propertyGrid.innerHTML = `
       <div class="property-card" style="grid-column: 1 / -1;">
         <div class="property-body">
-          <h3 class="property-title">Failed to load featured properties</h3>
+          <h3 class="property-title">Failed to load properties</h3>
           <p class="property-summary">${error.message}</p>
         </div>
       </div>
@@ -195,15 +193,7 @@ async function fetchFeaturedProperties() {
   }
 
   featuredProperties = (data || []).map(normaliseProperty);
-
-  //const featuredOnly = featuredProperties.filter((property) => property.featured);
-  //const finalItems = featuredOnly.length
-  //  ? featuredOnly.slice(0, 3)
-  //  : featuredProperties.slice(0, 3);
-  //
-  //renderFeaturedProperties(finalItems);
-  const latestThree = featuredProperties.slice(0, 3);
-  renderFeaturedProperties(latestThree);
+  renderFeaturedProperties(featuredProperties);
 }
 
 function setupMobileMenu() {
