@@ -21,12 +21,79 @@ const viewPropertyDialog = document.getElementById("viewPropertyDialog");
 const closeViewPropertyDialogBtn = document.getElementById("closeViewPropertyDialogBtn");
 const viewPropertyContent = document.getElementById("viewPropertyContent");
 
+const savePropertyBtn = document.getElementById("savePropertyBtn");
+const adminToastContainer = document.getElementById("adminToastContainer");
+const adminSavingOverlay = document.getElementById("adminSavingOverlay");
+const adminSavingText = document.getElementById("adminSavingText");
+
 function moneyLkr(value) {
   return new Intl.NumberFormat("en-LK", {
     style: "currency",
     currency: "LKR",
     maximumFractionDigits: 0
   }).format(value);
+}
+
+function getErrorMessage(error) {
+  if (!error) return "Something went wrong.";
+  if (typeof error === "string") return error;
+  return error.message || "Something went wrong.";
+}
+
+function showToast(message, type = "error", title = null) {
+  if (!adminToastContainer) {
+    window.alert(message);
+    return;
+  }
+
+  const toast = document.createElement("div");
+  toast.className = `admin-toast ${type}`;
+  toast.innerHTML = `
+    <div class="admin-toast-title">${title || (type === "success" ? "Success" : "Error")}</div>
+    <div class="admin-toast-message">${message}</div>
+  `;
+
+  adminToastContainer.appendChild(toast);
+
+  setTimeout(() => {
+    toast.remove();
+  }, 4000);
+}
+
+function setSavingState(isSaving, text = "Saving property...") {
+  if (savePropertyBtn) {
+    savePropertyBtn.classList.toggle("is-loading", isSaving);
+    savePropertyBtn.disabled = isSaving;
+  }
+
+  if (cancelPropertyBtn) {
+    cancelPropertyBtn.disabled = isSaving;
+  }
+
+  if (closePropertyDialogBtn) {
+    closePropertyDialogBtn.disabled = isSaving;
+  }
+
+  if (adminSavingOverlay) {
+    adminSavingOverlay.hidden = !isSaving;
+  }
+
+  if (adminSavingText) {
+    adminSavingText.textContent = text;
+  }
+}
+
+async function removeUploadedFiles(storagePaths = []) {
+  const validPaths = storagePaths.filter(Boolean);
+  if (!validPaths.length) return;
+
+  const { error } = await supabaseClient.storage
+    .from("property-images")
+    .remove(validPaths);
+
+  if (error) {
+    console.error("Failed to remove uploaded files during rollback:", error);
+  }
 }
 
 async function requireAuth() {
@@ -158,6 +225,7 @@ function openDialog() {
 function closeDialog() {
   propertyDialog.close();
   propertyForm.reset();
+  document.getElementById("propertyImageFile").value = "";
   editingPropertyId = null;
   const dialogTitle = document.getElementById("propertyDialogTitle");
   if (dialogTitle) dialogTitle.textContent = "Add Property";
@@ -268,75 +336,115 @@ function getFormValues() {
 
 async function createProperty(values, imageFiles) {
   let uploadedImages = [];
+  let createdPropertyId = null;
 
-  if (imageFiles && imageFiles.length) {
-    uploadedImages = await uploadPropertyImages(imageFiles);
-  }
+  try {
+    if (imageFiles && imageFiles.length) {
+      uploadedImages = await uploadPropertyImages(imageFiles);
+    }
 
-  const coverImage = uploadedImages[0] || null;
+    const coverImage = uploadedImages[0] || null;
 
-  const insertPayload = {
-    ...values,
-    cover_image_url: coverImage?.imageUrl || null
-  };
+    const insertPayload = {
+      ...values,
+      cover_image_url: coverImage?.imageUrl || null
+    };
 
-  const { data, error } = await supabaseClient
-    .from("properties")
-    .insert([insertPayload])
-    .select()
-    .single();
+    const { data, error } = await supabaseClient
+      .from("properties")
+      .insert([insertPayload])
+      .select()
+      .single();
 
-  if (error) throw error;
+    if (error) throw error;
 
-  if (uploadedImages.length) {
-    const propertyImagesPayload = uploadedImages.map((image, index) => ({
-      property_id: data.id,
-      image_url: image.imageUrl,
-      storage_path: image.storagePath,
-      is_cover: index === 0,
-      sort_order: index
-    }));
+    createdPropertyId = data.id;
 
-    const { error: imageError } = await supabaseClient
-      .from("property_images")
-      .insert(propertyImagesPayload);
+    if (uploadedImages.length) {
+      const imageRows = uploadedImages.map((image, index) => ({
+        property_id: data.id,
+        image_url: image.imageUrl,
+        storage_path: image.storagePath,
+        is_cover: index === 0,
+        sort_order: index
+      }));
 
-    if (imageError) throw imageError;
+      const { error: imageError } = await supabaseClient
+        .from("property_images")
+        .insert(imageRows);
+
+      if (imageError) throw imageError;
+    }
+
+    return data;
+  } catch (error) {
+    await removeUploadedFiles(uploadedImages.map((item) => item.storagePath));
+
+    if (createdPropertyId) {
+      const { error: cleanupError } = await supabaseClient
+        .from("properties")
+        .delete()
+        .eq("id", createdPropertyId);
+
+      if (cleanupError) {
+        console.error("Failed to rollback created property:", cleanupError);
+      }
+    }
+
+    throw error;
   }
 }
 
 async function updateProperty(id, values, imageFiles) {
-  let payload = { ...values };
+  const existingProperty = properties.find((item) => item.id === id);
+  let uploadedImages = [];
+  const previousCoverImageUrl = existingProperty?.cover_image_url || null;
 
-  if (imageFiles && imageFiles.length) {
-    const uploadedImages = await uploadPropertyImages(imageFiles);
-    const coverImage = uploadedImages[0];
+  try {
+    let payload = { ...values };
 
-    if (coverImage) {
-      payload.cover_image_url = coverImage.imageUrl;
+    if (imageFiles && imageFiles.length) {
+      uploadedImages = await uploadPropertyImages(imageFiles);
+      const coverImage = uploadedImages[0];
+
+      if (coverImage) {
+        payload.cover_image_url = coverImage.imageUrl;
+      }
     }
 
-    const propertyImagesPayload = uploadedImages.map((image, index) => ({
-      property_id: id,
-      image_url: image.imageUrl,
-      storage_path: image.storagePath,
-      is_cover: index === 0,
-      sort_order: index
-    }));
+    const { error: updateError } = await supabaseClient
+      .from("properties")
+      .update(payload)
+      .eq("id", id);
 
-    const { error: imageError } = await supabaseClient
-      .from("property_images")
-      .insert(propertyImagesPayload);
+    if (updateError) throw updateError;
 
-    if (imageError) throw imageError;
+    if (uploadedImages.length) {
+      const imageRows = uploadedImages.map((image, index) => ({
+        property_id: id,
+        image_url: image.imageUrl,
+        storage_path: image.storagePath,
+        is_cover: index === 0,
+        sort_order: index
+      }));
+
+      const { error: imageError } = await supabaseClient
+        .from("property_images")
+        .insert(imageRows);
+
+      if (imageError) {
+        await supabaseClient
+          .from("properties")
+          .update({ cover_image_url: previousCoverImageUrl })
+          .eq("id", id);
+
+        throw imageError;
+      }
+    }
+  } catch (error) {
+    await removeUploadedFiles(uploadedImages.map((item) => item.storagePath));
+    throw error;
   }
-
-  const { error } = await supabaseClient
-    .from("properties")
-    .update(payload)
-    .eq("id", id);
-
-  if (error) throw error;
 }
 
 async function deleteProperty(id) {
@@ -508,26 +616,32 @@ function setupDialog() {
   closeViewPropertyDialogBtn?.addEventListener("click", closeViewDialog);
 
   propertyForm?.addEventListener("submit", async (event) => {
-    event.preventDefault();
+	  event.preventDefault();
 
-    try {
-      const values = getFormValues();
-      //const imageFile = document.getElementById("propertyImageFile")?.files?.[0] || null;
 	  const imageFiles = Array.from(document.getElementById("propertyImageFile")?.files || []);
-	  
-      if (editingPropertyId) {
-	    await updateProperty(editingPropertyId, values, imageFiles);
-	  } else {
-	    await createProperty(values, imageFiles);
-	  }
 
-      await fetchProperties();
-      closeDialog();
-    } catch (error) {
-      console.error("Save property error:", error);
-      alert(error.message || "Failed to save property.");
-    }
-  });
+	  try {
+		setSavingState(true, editingPropertyId ? "Updating property..." : "Saving property...");
+
+		const values = getFormValues();
+
+		if (editingPropertyId) {
+		  await updateProperty(editingPropertyId, values, imageFiles);
+		  showToast("Property updated successfully.", "success", "Saved");
+		} else {
+		  await createProperty(values, imageFiles);
+		  showToast("Property created successfully.", "success", "Saved");
+		}
+
+		await fetchProperties();
+		closeDialog();
+	  } catch (error) {
+		console.error("Save property error:", error);
+		showToast(getErrorMessage(error), "error", "Save failed");
+	  } finally {
+		setSavingState(false);
+	  }
+	});
 }
 
 function setupFilters() {

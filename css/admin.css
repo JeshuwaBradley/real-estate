@@ -817,6 +817,127 @@
   border: 1px solid #e8e1d3;
   background: #f4efe7;
 }
+.btn-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  display: none;
+  animation: adminSpin 0.8s linear infinite;
+}
+
+.btn.is-loading .btn-spinner {
+  display: inline-block;
+}
+
+.btn.is-loading .btn-text {
+  opacity: 0.9;
+}
+
+.btn.is-loading {
+  pointer-events: none;
+  opacity: 0.85;
+}
+
+.admin-saving-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+  background: rgba(22, 29, 33, 0.4);
+  backdrop-filter: blur(3px);
+  display: grid;
+  place-items: center;
+}
+
+.admin-saving-overlay[hidden] {
+  display: none;
+}
+
+.admin-saving-card {
+  min-width: 220px;
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  padding: 24px 28px;
+  box-shadow: 0 24px 60px rgba(31, 41, 51, 0.18);
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+}
+
+.admin-saving-spinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid rgba(47, 107, 95, 0.18);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: adminSpin 0.8s linear infinite;
+}
+
+.admin-saving-card p {
+  margin: 0;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.admin-toast-container {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 4000;
+  display: grid;
+  gap: 12px;
+  width: min(360px, calc(100vw - 32px));
+}
+
+.admin-toast {
+  border-radius: 18px;
+  padding: 14px 16px;
+  box-shadow: 0 20px 45px rgba(31, 41, 51, 0.16);
+  border: 1px solid var(--line);
+  background: #ffffff;
+  color: var(--text);
+  animation: toastIn 0.24s ease;
+}
+
+.admin-toast.success {
+  border-color: #d9eadf;
+  background: #f4fbf6;
+}
+
+.admin-toast.error {
+  border-color: #f0d5d5;
+  background: #fff6f6;
+}
+
+.admin-toast-title {
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.admin-toast-message {
+  font-size: 0.94rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+@keyframes adminSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 @media (max-width: 820px) {
   .admin-preview-hero {
     grid-template-columns: 1fr;

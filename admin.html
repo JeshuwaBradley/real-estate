@@ -286,7 +286,10 @@
 
       <div class="admin-form-actions">
         <button type="button" class="btn btn-outline" id="cancelPropertyBtn">Cancel</button>
-        <button type="submit" class="btn btn-primary">Save Property</button>
+        <button type="submit" class="btn btn-primary" id="savePropertyBtn">
+		  <span class="btn-text">Save Property</span>
+		  <span class="btn-spinner" aria-hidden="true"></span>
+		</button>
       </div>
     </form>
   </dialog>
@@ -302,7 +305,13 @@
 		<!-- Filled by JS -->
 	  </div>
 	</dialog>
-
+  <div class="admin-toast-container" id="adminToastContainer"></div>
+  <div class="admin-saving-overlay" id="adminSavingOverlay" hidden>
+  <div class="admin-saving-card">
+      <div class="admin-saving-spinner"></div>
+      <p id="adminSavingText">Saving property...</p>
+    </div>
+  </div>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script type="module" src="./js/admin.js"></script>
 </body>
