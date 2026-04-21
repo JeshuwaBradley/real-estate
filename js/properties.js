@@ -359,7 +359,7 @@ function setupMobileMenu() {
 
 document.addEventListener("DOMContentLoaded", async () => {
   setupFilters();
-  setupMobileMenu();
+  // setupMobileMenu();
   applyFiltersFromUrl();
   await fetchProperties();
 });

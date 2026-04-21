@@ -233,7 +233,7 @@ function setupSearchForm() {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
-  setupMobileMenu();
+  // setupMobileMenu();
   setupSearchForm();
   await fetchFeaturedProperties();
 });

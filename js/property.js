@@ -512,7 +512,7 @@ async function fetchRelatedProperties(property) {
 }
 
 async function initPage() {
-  setupMobileMenu();
+  // setupMobileMenu();
 
   const propertyId = getUrlPropertyId();
   if (!propertyId) {
