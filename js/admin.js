@@ -17,6 +17,10 @@ const propertyForm = document.getElementById("propertyForm");
 const adminSidebar = document.getElementById("adminSidebar");
 const adminSidebarToggle = document.getElementById("adminSidebarToggle");
 
+const viewPropertyDialog = document.getElementById("viewPropertyDialog");
+const closeViewPropertyDialogBtn = document.getElementById("closeViewPropertyDialogBtn");
+const viewPropertyContent = document.getElementById("viewPropertyContent");
+
 function moneyLkr(value) {
   return new Intl.NumberFormat("en-LK", {
     style: "currency",
@@ -63,30 +67,68 @@ function formatStatus(status) {
 
 function renderProperties(items) {
   propertiesTableBody.innerHTML = items
-    .map(
-      (property) => `
+    .map((property) => {
+      const thumb = property.cover_image_url
+        ? `<img class="admin-property-thumb" src="${property.cover_image_url}" alt="${property.title ?? "Property"}" />`
+        : `<div class="admin-property-thumb-placeholder">No Image</div>`;
+
+      return `
         <tr>
-          <td class="admin-table-title">${property.title ?? "-"}</td>
-          <td>${property.location ?? "-"}</td>
+          <td>
+            <div class="admin-property-cell">
+              ${thumb}
+              <div class="admin-property-main">
+                <div class="admin-property-name">${property.title ?? "-"}</div>
+                <div class="admin-property-meta">
+                  ${property.location ?? "-"}${property.district ? `, ${property.district}` : ""}
+                </div>
+              </div>
+            </div>
+          </td>
+
           <td>${property.property_type ?? "-"}</td>
+
           <td>
-            <span class="admin-badge ${getGradeClass(property.grade)}">Grade ${property.grade ?? "-"}</span>
+            <span class="admin-badge ${getGradeClass(property.grade)}">
+              Grade ${property.grade ?? "-"}
+            </span>
           </td>
+
           <td>
-            <span class="admin-badge ${getStatusClass(property.status)}">${formatStatus(property.status)}</span>
+            <span class="admin-badge ${getStatusClass(property.status)}">
+              ${formatStatus(property.status)}
+            </span>
           </td>
-          <td>${property.price_display || moneyLkr(property.price || 0)}</td>
+
+          <td class="admin-price-strong">
+            ${property.price_display || moneyLkr(property.price || 0)}
+          </td>
+
+          <td>
+            <span class="admin-ref-code">${property.reference_code || "-"}</span>
+          </td>
+
           <td>
             <div class="admin-row-actions">
-              <button class="admin-action-btn" type="button" data-edit-id="${property.id}">Edit</button>
-              <button class="admin-action-btn" type="button" data-view-id="${property.id}">View</button>
-              <button class="admin-action-btn" type="button" data-delete-id="${property.id}">Delete</button>
+              <button class="admin-action-btn edit-btn" type="button" data-edit-id="${property.id}">Edit</button>
+              <button class="admin-action-btn view-btn" type="button" data-view-id="${property.id}">View</button>
+              <button class="admin-action-btn delete-btn" type="button" data-delete-id="${property.id}">Delete</button>
             </div>
           </td>
         </tr>
-      `
-    )
+      `;
+    })
     .join("");
+
+  if (!items.length) {
+    propertiesTableBody.innerHTML = `
+      <tr>
+        <td colspan="7" style="padding: 28px; text-align: center; color: var(--muted);">
+          No properties found for the selected filters.
+        </td>
+      </tr>
+    `;
+  }
 }
 
 function filterProperties() {
@@ -298,6 +340,103 @@ function fillForm(property) {
   document.getElementById("propertyRef").value = property.reference_code ?? "";
 }
 
+
+function renderFacts(facts) {
+  if (!Array.isArray(facts) || !facts.length) {
+    return `<span class="admin-preview-fact">No facts added</span>`;
+  }
+
+  return facts
+    .map((fact) => `<span class="admin-preview-fact">${fact}</span>`)
+    .join("");
+}
+
+function renderPreview(property) {
+  const imageMarkup = property.cover_image_url
+    ? `
+      <div class="admin-preview-image-wrap">
+        <img src="${property.cover_image_url}" alt="${property.title ?? "Property"}" />
+      </div>
+    `
+    : `
+      <div class="admin-preview-image-empty">
+        No property image uploaded
+      </div>
+    `;
+
+  viewPropertyContent.innerHTML = `
+    <div class="admin-preview-hero">
+      ${imageMarkup}
+
+      <div class="admin-preview-summary">
+        <div class="admin-preview-topline">
+          <span class="admin-badge ${getGradeClass(property.grade)}">Grade ${property.grade ?? "-"}</span>
+          <span class="admin-badge ${getStatusClass(property.status)}">${formatStatus(property.status)}</span>
+        </div>
+
+        <h3 class="admin-preview-title">${property.title ?? "-"}</h3>
+        <div class="admin-preview-location">
+          ${property.location ?? "-"}${property.district ? `, ${property.district}` : ""}
+        </div>
+        <div class="admin-preview-price">
+          ${property.price_display || moneyLkr(property.price || 0)}
+        </div>
+      </div>
+    </div>
+
+    <div class="admin-preview-grid">
+      <div class="admin-preview-stat">
+        <span>Property Type</span>
+        <strong>${property.property_type ?? "-"}</strong>
+      </div>
+      <div class="admin-preview-stat">
+        <span>Listing Type</span>
+        <strong>${property.listing_type ?? "-"}</strong>
+      </div>
+      <div class="admin-preview-stat">
+        <span>Bedrooms</span>
+        <strong>${property.bedrooms ?? 0}</strong>
+      </div>
+      <div class="admin-preview-stat">
+        <span>Reference</span>
+        <strong>${property.reference_code ?? "-"}</strong>
+      </div>
+    </div>
+
+    <div class="admin-preview-content">
+      <div class="admin-preview-section">
+        <h3>Summary</h3>
+        <p>${property.summary || "No summary added."}</p>
+      </div>
+
+      <div class="admin-preview-section">
+        <h3>Property Facts</h3>
+        <div class="admin-preview-facts">
+          ${renderFacts(property.facts)}
+        </div>
+      </div>
+
+      <div class="admin-preview-section">
+        <h3>Additional Details</h3>
+        <p>
+          <strong>Condition:</strong> ${property.condition || "-"}<br />
+          <strong>Verified:</strong> ${property.verified ? "Yes" : "No"}
+        </p>
+      </div>
+    </div>
+  `;
+}
+
+function openViewDialog(property) {
+  renderPreview(property);
+  viewPropertyDialog.showModal();
+}
+
+function closeViewDialog() {
+  viewPropertyDialog.close();
+  viewPropertyContent.innerHTML = "";
+}
+
 function setupDialog() {
   openPropertyDialogBtn?.addEventListener("click", () => {
     editingPropertyId = null;
@@ -308,6 +447,7 @@ function setupDialog() {
 
   closePropertyDialogBtn?.addEventListener("click", closeDialog);
   cancelPropertyBtn?.addEventListener("click", closeDialog);
+  closeViewPropertyDialogBtn?.addEventListener("click", closeViewDialog);
 
   propertyForm?.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -368,13 +508,12 @@ function setupTableActions() {
     }
 
     if (viewId) {
-      const property = properties.find((item) => item.id === viewId);
-      if (!property) return;
+	  const property = properties.find((item) => item.id === viewId);
+	  if (!property) return;
 
-      alert(
-        `${property.title}\n${property.location}\n${property.price_display || moneyLkr(property.price || 0)}`
-      );
-    }
+	  openViewDialog(property);
+	  return;
+	}
   });
 }
 

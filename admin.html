@@ -108,22 +108,31 @@
           </div>
         </div>
 
-        <div class="admin-table-wrap">
-          <table class="admin-table">
-            <thead>
-              <tr>
-                <th>Title</th>
-                <th>Location</th>
-                <th>Type</th>
-                <th>Grade</th>
-                <th>Status</th>
-                <th>Price</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="propertiesTableBody"></tbody>
-          </table>
-        </div>
+		<div class="admin-listings-shell">
+		  <div class="admin-listings-topbar">
+			<div>
+			  <h3 class="admin-listings-title">All Property Listings</h3>
+			  <p class="admin-listings-subtext">Review, edit, preview, and manage your current property inventory.</p>
+			</div>
+		  </div>
+
+		  <div class="admin-table-wrap">
+			<table class="admin-table admin-listings-table">
+			  <thead>
+				<tr>
+				  <th>Property</th>
+				  <th>Type</th>
+				  <th>Grade</th>
+				  <th>Status</th>
+				  <th>Price</th>
+				  <th>Ref</th>
+				  <th>Actions</th>
+				</tr>
+			  </thead>
+			  <tbody id="propertiesTableBody"></tbody>
+			</table>
+		  </div>
+		</div>
       </section>
 
       <!-- Leads Section -->
@@ -282,6 +291,17 @@
     </form>
   </dialog>
 
+	<!-- View Property Dialog -->
+	<dialog class="admin-dialog admin-preview-dialog" id="viewPropertyDialog">
+	  <div class="admin-dialog-head">
+		<h2>Property Preview</h2>
+		<button class="admin-dialog-close" id="closeViewPropertyDialogBtn" type="button">✕</button>
+	  </div>
+
+	  <div class="admin-preview-body" id="viewPropertyContent">
+		<!-- Filled by JS -->
+	  </div>
+	</dialog>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script type="module" src="./js/admin.js"></script>
