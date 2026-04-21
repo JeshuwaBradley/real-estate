@@ -240,6 +240,19 @@ function renderGallery(property) {
       `
     )
     .join("");
+  const galleryThumbs = document.getElementById("galleryThumbs");
+  const leftBtn = document.getElementById("thumbLeft");
+  const rightBtn = document.getElementById("thumbRight");
+  
+  if (leftBtn && rightBtn && galleryThumbs) {
+    leftBtn.onclick = () => {
+      galleryThumbs.scrollBy({ left: -200, behavior: "smooth" });
+    };
+  
+    rightBtn.onclick = () => {
+      galleryThumbs.scrollBy({ left: 200, behavior: "smooth" });
+    };
+  }
 
   const thumbs = document.querySelectorAll(".gallery-thumb");
   thumbs.forEach((thumb) => {
