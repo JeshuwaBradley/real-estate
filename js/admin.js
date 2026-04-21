@@ -31,6 +31,11 @@ const errorDialogMessage = document.getElementById("errorDialogMessage");
 const closeErrorDialogBtn = document.getElementById("closeErrorDialogBtn");
 const dismissErrorDialogBtn = document.getElementById("dismissErrorDialogBtn");
 
+const statTotalProperties = document.getElementById("statTotalProperties");
+const statPublishedProperties = document.getElementById("statPublishedProperties");
+const statPendingReview = document.getElementById("statPendingReview");
+const statDraftProperties = document.getElementById("statDraftProperties");
+
 function moneyLkr(value) {
   return new Intl.NumberFormat("en-LK", {
     style: "currency",
@@ -149,6 +154,18 @@ function formatStatus(status) {
   if (status === "draft") return "Draft";
   if (status === "review") return "In Review";
   return status;
+}
+
+function updatePropertyStats(items) {
+  const total = items.length;
+  const published = items.filter((item) => item.status === "published").length;
+  const review = items.filter((item) => item.status === "review").length;
+  const draft = items.filter((item) => item.status === "draft").length;
+
+  if (statTotalProperties) statTotalProperties.textContent = total;
+  if (statPublishedProperties) statPublishedProperties.textContent = published;
+  if (statPendingReview) statPendingReview.textContent = review;
+  if (statDraftProperties) statDraftProperties.textContent = draft;
 }
 
 function renderProperties(items) {
@@ -280,6 +297,7 @@ async function fetchProperties() {
       gallery_images: sortedImages
     };
   });
+  updatePropertyStats(properties);
 
   filterProperties();
 }
